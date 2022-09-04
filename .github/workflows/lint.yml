@@ -5,10 +5,10 @@ on:
   # but only for the main branch
   push:
     branches:
-      - main
+      - '**'
   pull_request:
     branches:
-      - main
+      - '**'
 
 jobs:
   run-linters:
@@ -33,6 +33,7 @@ jobs:
         with:
           eslint: true
           eslint_auto_fix: false
+          eslint_extensions: js,ts
           
           prettier: true
           prettier_auto_fix: false
