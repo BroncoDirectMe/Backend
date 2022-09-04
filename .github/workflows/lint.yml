@@ -33,8 +33,6 @@ jobs:
         with:
           eslint: true
           eslint_auto_fix: false
-          es-lint_commit: false
           
           prettier: true
           prettier_auto_fix: false
-          prettier_commit: false
