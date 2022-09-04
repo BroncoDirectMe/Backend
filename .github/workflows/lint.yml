@@ -1,8 +1,7 @@
 name: lint
 
 on:
-  # Trigger the workflow on push or pull request,
-  # but only for the main branch
+#triggers on every push and pull
   push:
   pull_request:
 
