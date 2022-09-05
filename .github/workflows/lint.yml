@@ -1,5 +1,6 @@
 name: lint
 on:
+#triggers on every push and pull
   push:
   pull_request:
 
