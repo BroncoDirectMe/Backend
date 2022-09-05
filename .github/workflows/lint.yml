@@ -1,6 +1,6 @@
 name: lint
 on:
-#triggers on every push and pull
+  #triggers on every push and pull
   push:
   pull_request:
 
@@ -28,6 +28,6 @@ jobs:
           eslint: true
           eslint_auto_fix: false
           eslint_extensions: js,ts
-          
+
           prettier: true
           prettier_auto_fix: false
