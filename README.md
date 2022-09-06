@@ -1,6 +1,6 @@
 <h1> BroncoDirectMe </h1>
 
-<p> An extension for <a href="https://alternativeto.net/category/browsers/chromium-based/"> Chromium-based browsers </a> that is an alternative frontend for the BroncoDirect website. This extension allows Cal Poly Pomona students to access BroncoDirect information in anywhere while browsing the web. </p>
+<p> An extension for Chrome that is an alternative frontend for the BroncoDirect website. This extension allows Cal Poly Pomona students to access BroncoDirect information from anywhere while browsing the web. </p>
 
 <h3> BroncoDirectMe Backend </h3>
 
