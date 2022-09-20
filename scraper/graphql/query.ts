@@ -3,7 +3,7 @@ import { gql } from 'graphql-request'
 
 // query in which data is returned
 // for a list of professor
-export const professor_query = gql`
+export const professorQuery = gql`
 query NewSearchTeachersQuery($count: Int!, $schoolID: ID!, $text: String!) {
   newSearch {
     teachers(query: {schoolID: $schoolID, text: $text}, first: $count) {
@@ -20,7 +20,7 @@ query NewSearchTeachersQuery($count: Int!, $schoolID: ID!, $text: String!) {
 }`
 
 // for a specific professor
-export const professor_rating_query = gql`
+export const professorRatingQuery = gql`
 query TeacherRatingsPageQuery($id: ID!) {
   node(id: $id) {
     ... on Teacher {

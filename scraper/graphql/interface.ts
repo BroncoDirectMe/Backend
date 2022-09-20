@@ -1,12 +1,12 @@
 // interfaces are used when we make a query request to ratemyprofessor.com/graphql
 // used when we format the returned data
-export interface professor_search {
+export interface ProfessorSearch {
   id: string
   firstName: string
   lastName: string
 }
 
-export interface professor_page {
+export interface ProfessorPage {
   firstName: string
   lastName: string
   avgDifficulty: number
