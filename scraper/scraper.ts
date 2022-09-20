@@ -51,7 +51,9 @@ export const getAllProfessor = async (): Promise<ProfessorSearch[]> => {
 
 // returns a Promise of a professors data
 // will only return if full name is matched
-export const getProfessor = async (name: string): Promise<ProfessorPage[] | null> => {
+export const getProfessor = async (
+  name: string
+): Promise<ProfessorPage[] | null> => {
   // searches RMP by professors name
   const getProfessorResults = await getProfessorName(name);
 
