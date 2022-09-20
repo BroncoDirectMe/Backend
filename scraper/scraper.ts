@@ -43,7 +43,7 @@ const getProfessorData = async (id: string): Promise<ProfessorPage[]> => {
 
 // returns an array for all professors
 // [refer to getProfessorName]
-export const getAllProfessor = async () => {
+export const getAllProfessor = async (): Promise<ProfessorSearch[]> => {
   // ratemyprofessor.com uses the * to refer to all
   const allProfessor = await getProfessorName('*');
   return allProfessor;
@@ -51,7 +51,7 @@ export const getAllProfessor = async () => {
 
 // returns a Promise of a professors data
 // will only return if full name is matched
-export const getProfessor = async (name: string) => {
+export const getProfessor = async (name: string): Promise<ProfessorPage[] | null> => {
   // searches RMP by professors name
   const getProfessorResults = await getProfessorName(name);
 
@@ -63,4 +63,5 @@ export const getProfessor = async (name: string) => {
     const professor = await getProfessorData(professorId);
     return professor;
   }
+  return null;
 };
