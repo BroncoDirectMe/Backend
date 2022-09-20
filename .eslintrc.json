@@ -10,6 +10,16 @@
     "project": ["tsconfig.json"]
   },
   "rules": {
-    "@typescript-eslint/strict-boolean-expressions": 0
+    "@typescript-eslint/strict-boolean-expressions": 0,
+    "@typescript-eslint/naming-convention": ["warn", {
+      "selector": "default",
+      "format": ["camelCase"]
+    }, {
+      "selector": "variable",
+      "format": ["camelCase", "UPPER_CASE"]
+    }, {
+      "selector": "typeLike",
+      "format": ["PascalCase"]
+    }]
   }
 }
