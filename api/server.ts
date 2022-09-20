@@ -5,21 +5,19 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-app.post('/', (req, res) => {
-  // algorithm for random list
-  let teachers = ["here", "are","some","shit"]
-  //algorithm end 
+app.post('/professor', (req, res) => {
+  // API returns single professor data or null if doesn't exist
   
-  res.send(req.body.test || 'Hello World');
+  
+  res.send(req.body.test || 'in prof');
+});
+app.post('/search', (req, res) => {
+  // returns random list of professors
+
+  
+  res.send(req.body.test || 'in search');
 });
 
-app.post('/', (req, res) => {
-  // algorithm for random list
-  let teachers = ["here", "are","some","shit"]
-  //algorithm end 
-  
-  res.send(req.body.test || 'Hello World');
-});
 
 app.listen(process.env.PORT ?? 3000);
 
