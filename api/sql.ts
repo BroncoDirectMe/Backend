@@ -34,14 +34,31 @@ async function profSearch(broncoDirectName: string): Promise<void> {
 
 /**
  * Adds a professor to the SQL database
- * @param {Professor} professor See professor interface
- * @returns {Promise<void>} Value can be extracted by awaiting function call within an async function
+ * @param {Professor} professor See professor interface (/api/Professor.d.ts)
  */
-function addProf(professor: Professor): void {
-  void execute('INSERT INTO professorDB VALUES (?, ?, ?, ?, ?, ?)', [professor.broncoDirectName, professor.RMPName, professor.RMPURL, professor.profRating, professor.profDifficulty, professor.takeClassAgain])
+function addProf({broncoDirectName, RMPName, RMPURL, profRating, profDifficulty, takeClassAgain}: Professor): void {
+  void execute('INSERT INTO professorDB VALUES (?, ?, ?, ?, ?, ?)', [broncoDirectName, RMPName, RMPURL, profRating.toFixed(2), profDifficulty.toFixed(2), takeClassAgain.toFixed(2)])
 }
 
-export function initializeMySQL(): void {  
+/**
+ * Updates existing professor in the SQL database
+ * @param {Professor} newProfessor See professor interface (/api/Professor.d.ts)
+ */
+async function updateProf({broncoDirectName, RMPName, RMPURL, profRating, profDifficulty, takeClassAgain}: Professor): Promise<void> {
+  void execute(`UPDATE professorDB SET 
+  RMPName = ?,
+  RMPURL = ?,
+  profRating = ?,
+  profDifficulty = ?,
+  takeClassAgain = ?
+  WHERE broncoDirectName = ?`, [RMPName, RMPURL, profRating.toFixed(2), profDifficulty.toFixed(2), takeClassAgain.toFixed(2), broncoDirectName])
+}
+
+
+/**
+ * Initializes mySQL in the backend by creating a connection to the mySQL server
+ */
+export async function initializeMySQL(): Promise<void> {  
   connection = mysql.createConnection({
     host: process.env.HOST,
     port: process.env.SQL_PORT ? parseInt(process.env.SQL_PORT) : 3306,
@@ -67,4 +84,29 @@ export function initializeMySQL(): void {
       takeClassAgain varchar(255)
     )
   `)
+
+  // Testing commands:
+  // const sampleProf: Professor = {
+  //   broncoDirectName: "Poppy Gloria",
+  //   RMPName: "Poppy Gloria",
+  //   RMPURL: "ratemyprofessor.com/PoppyGloria",
+  //   profRating: 10.0,
+  //   profDifficulty: 2.1,
+  //   takeClassAgain: 1.0
+  // }
+
+  // addProf(sampleProf)
+  // const result = await profSearch("Poppy Gloria")
+  // console.log(result)
+
+  // void updateProf({
+  //   broncoDirectName: "Poppy Gloria",
+  //   RMPName: "Poppy",
+  //   RMPURL: "ratemyprofessor.com/PoppyGloria",
+  //   profRating: 10.0,
+  //   profDifficulty: 5.0,
+  //   takeClassAgain: 1.0
+  // })
+  // const updatedResult = await profSearch("Poppy Gloria")
+  // console.log(updatedResult)
 }
