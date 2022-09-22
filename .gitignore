@@ -26,46 +26,9 @@ jspm_packages/
 
 # dotenv environment variable files
 .env
-.env.development.local
-.env.test.local
-.env.production.local
-.env.local
 
 # Stores VSCode versions used for testing VSCode extensions
 .vscode-test
-
-# ------- MySQL ignore -------
-
-*~
-*.a
-*.la
-*.lo
-*.o
-*.so
-*ib_doublewrite
-*ib_logfile0
-*ib_logfile1
-*ibdata1
-
-.cproject
-.deps
-.metadata
-.project
-.settings
-.*.swp
-Docs/INFO_BIN
-Testing/
-VERSION.dep
-
-config.guess
-config.log
-config.status
-config.sub
-configure
-
-install-sh
-instance
-log
 
 # ------- Extra -------
 scraper/test.ts
