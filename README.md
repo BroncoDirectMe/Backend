@@ -6,7 +6,7 @@
 
 <p> This repository contains all required code to drive the BroncoDirectMe Chromium extension. This includes Web scrapers for retrieving all professors from RateMyProfessor.com and APIs for displaying the information on the extension client.</p>
 
-##Features
+<h2> Features </h2>
 
 <h3> Web Scrapers </h3>
 <p> Function: Our web scrapers parse through RateMyProfessor.com and return information about Cal Poly Pomoana's professors and the clsses they teach </p>  
