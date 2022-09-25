@@ -9,7 +9,7 @@
 <h2> Features </h2>
 
 <h3> Web Scrapers </h3>
-<p> Function: Our web scrapers parse through RateMyProfessor.com and return information about Cal Poly Pomoana's professors and the clsses they teach </p>  
+<p> Function: Our web scrapers parse through RateMyProfessor.com and return information about Cal Poly Pomoana's professors and the clsses they teach </p>
 
 <h3> MySQL Database </h3>
 <p> Function: The MySQL Database is used to store the data retrieved from RateMyProfessor.com and be interfaced with to display on the <code> BroncoDirectMe Frontend </code>. </p>
