@@ -29,11 +29,11 @@ const getProfessorSearch = async (name: string): Promise<ProfessorSearch[]> => {
 // returns a professor's data based on an id
 // returned Promise with firstName, lastNam'e, id, legacyId, avgDifficulty, avgRating, numRatings
 // example getProfessorData('VGVhY2hlci0yMzM0Nzcy')
-const getProfessorData = async (id: string): Promise<ProfessorPage[]> => {
+const getProfessorData = async (profId: string): Promise<ProfessorPage[]> => {
   const professorSearchData = await graphQLClient.request(
     professorRatingQuery,
     {
-      id: id,
+      id: profId,
     }
   );
   return professorSearchData.node;
