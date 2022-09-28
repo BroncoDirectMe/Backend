@@ -39,7 +39,7 @@ app.post('/professor', (req, res) => {
 app.post('/search', (req, res) => {
   // returns random list of professors
   if (checkEmpty(req.body)) {
-    res.status(400).send('empty json not accepted');
+    res.status(400).send('please provide a json with key of count');
     return;
   }
   if (!('count' in req.body)) {
@@ -48,7 +48,7 @@ app.post('/search', (req, res) => {
   }
   else{
     if(!Number.isInteger(req.body.count)){
-      res.status(400).send('please specify a number');
+      res.status(400).send('please specify a number ');
       return;
     }
   }
