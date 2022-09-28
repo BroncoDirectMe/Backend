@@ -5,18 +5,25 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-function  checkEmpty(dictionary:object) :boolean {
-  return Object.keys(dictionary).length===0
+function checkEmpty(values: object): boolean {
+  return Object.keys(values).length === 0;
 }
 
 app.post('/professor', (req, res) => {
   // API returns single professor data or null if doesn't exist
-  // I'm using a single object, but Ideally this should be a nested dictionary? this is the format that I'll just stick with
-  if (checkEmpty(req.body)){
-    res.status(400).send("empty dictionary not accepted");
-    return
+  // I'm using a single object, but Ideally this should be a nested object? this is the format that I'll just stick with
+  // object input
+  // {"name" : "professor"}
+  if (checkEmpty(req.body)) {
+    res.status(400).send('empty json not accepted');
+    return;
   }
-  // console.log(typeof req);
+  if (!('name' in req.body)) {
+    res.status(400).send('name of professor needs to be specified');
+    return;
+  }
+
+  
   const professorReturn = {
     'BroncoDirect Name': 'Name',
     Name: 'Name',
@@ -31,10 +38,21 @@ app.post('/professor', (req, res) => {
 });
 app.post('/search', (req, res) => {
   // returns random list of professors
-  if(checkEmpty(req.body)){
-    res.status(400).send("empty dictionary not accepted");
-    return
+  if (checkEmpty(req.body)) {
+    res.status(400).send('empty json not accepted');
+    return;
   }
+  if (!('count' in req.body)) {
+    res.status(400).send('must specify the amount of professors needed');
+    return;
+  }
+  else{
+    if(!Number.isInteger(req.body.count)){
+      res.status(400).send('please specify a number');
+      return;
+    }
+  }
+  
 
   const searchReturn = {
     profs: [1, 2, 3, 4, 5, 6, 7, 8, 9], // remember this should return actual professor names
