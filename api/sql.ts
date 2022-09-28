@@ -42,16 +42,16 @@ async function profSearch(broncoDirectName: string): Promise<void> {
  */
 function addProf({
   broncoDirectName,
-  RMPName,
-  RMPURL,
+  rmpName,
+  rmpURL,
   profRating,
   profDifficulty,
   takeClassAgain,
 }: Professor): void {
   void execute('INSERT INTO professorDB VALUES (?, ?, ?, ?, ?, ?)', [
     broncoDirectName,
-    RMPName,
-    RMPURL,
+    rmpName,
+    rmpURL,
     profRating.toFixed(2),
     profDifficulty.toFixed(2),
     takeClassAgain.toFixed(2),
@@ -64,23 +64,23 @@ function addProf({
  */
 async function updateProf({
   broncoDirectName,
-  RMPName,
-  RMPURL,
+  rmpName,
+  rmpURL,
   profRating,
   profDifficulty,
   takeClassAgain,
 }: Professor): Promise<void> {
   void execute(
     `UPDATE professorDB SET 
-  RMPName = ?,
-  RMPURL = ?,
+  rmpName = ?,
+  rmpURL = ?,
   profRating = ?,
   profDifficulty = ?,
   takeClassAgain = ?
   WHERE broncoDirectName = ?`,
     [
-      RMPName,
-      RMPURL,
+      rmpName,
+      rmpURL,
       profRating.toFixed(2),
       profDifficulty.toFixed(2),
       takeClassAgain.toFixed(2),
@@ -111,8 +111,8 @@ export async function initializeMySQL(): Promise<void> {
   void execute(`
     CREATE TABLE IF NOT EXISTS professorDB (
       broncoDirectName varchar(255) NOT NULL PRIMARY KEY,
-      RMPName varchar(255),
-      RMPURL LONGTEXT,
+      rmpName varchar(255),
+      rmpURL LONGTEXT,
       profRating varchar(255),
       profDifficulty varchar(255),
       takeClassAgain varchar(255)
@@ -122,8 +122,8 @@ export async function initializeMySQL(): Promise<void> {
   // Testing commands:
   // const sampleProf: Professor = {
   //   broncoDirectName: "Poppy Gloria",
-  //   RMPName: "Poppy Gloria",
-  //   RMPURL: "ratemyprofessor.com/PoppyGloria",
+  //   rmpName: "Poppy Gloria",
+  //   rmpURL: "ratemyprofessor.com/PoppyGloria",
   //   profRating: 10.0,
   //   profDifficulty: 2.1,
   //   takeClassAgain: 1.0
@@ -135,8 +135,8 @@ export async function initializeMySQL(): Promise<void> {
 
   // void updateProf({
   //   broncoDirectName: "Poppy Gloria",
-  //   RMPName: "Poppy",
-  //   RMPURL: "ratemyprofessor.com/PoppyGloria",
+  //   rmpName: "Poppy",
+  //   rmpURL: "ratemyprofessor.com/PoppyGloria",
   //   profRating: 10.0,
   //   profDifficulty: 5.0,
   //   takeClassAgain: 1.0
