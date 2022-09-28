@@ -13,9 +13,9 @@ const graphQLClient = new GraphQLClient(WEB_URL, {
 });
 
 // returns a list of professrs in JSON format
-// takes in a string of professors searched name (example getProfessorName('kevin chun') )
+// takes in a string of professors searched name (example getProfessorSearch('kevin chun') )
 // returned Promise with firstName, lastName, and id (used to query that professor)
-const getProfessorName = async (name: string): Promise<ProfessorSearch[]> => {
+const getProfessorSearch = async (name: string): Promise<ProfessorSearch[]> => {
   const professorSearchList = await graphQLClient.request(professorQuery, {
     schoolID: SCHOOL_ID,
     text: name,
@@ -45,17 +45,17 @@ const getProfessorData = async (id: string): Promise<ProfessorPage[]> => {
 // [refer to getProfessorName]
 export const getAllProfessor = async (): Promise<ProfessorSearch[]> => {
   // ratemyprofessor.com uses the * to refer to all
-  const allProfessor = await getProfessorName('*');
+  const allProfessor = await getProfessorSearch('*');
   return allProfessor;
 };
 
 // returns a Promise of a professors data
 // will only return if full name is matched
-export const getProfessor = async (
+export const getProfessorByName = async (
   name: string
 ): Promise<ProfessorPage[] | null> => {
   // searches RMP by professors name
-  const getProfessorResults = await getProfessorName(name);
+  const getProfessorResults = await getProfessorSearch(name);
 
   // if only 1 result appears for that professor
   if (getProfessorResults.length === 1) {
