@@ -23,7 +23,6 @@ app.post('/professor', (req, res) => {
     return;
   }
 
-  
   const professorReturn = {
     'BroncoDirect Name': 'Name',
     Name: 'Name',
@@ -45,14 +44,12 @@ app.post('/search', (req, res) => {
   if (!('count' in req.body)) {
     res.status(400).send('must specify the amount of professors needed');
     return;
-  }
-  else{
-    if(!Number.isInteger(req.body.count)){
+  } else {
+    if (!Number.isInteger(req.body.count)) {
       res.status(400).send('please specify a number ');
       return;
     }
   }
-  
 
   const searchReturn = {
     profs: [1, 2, 3, 4, 5, 6, 7, 8, 9], // remember this should return actual professor names
