@@ -33,4 +33,3 @@ jspm_packages/
 # ------- Extra -------
 scraper/test.ts
 .vscode/
-.env
