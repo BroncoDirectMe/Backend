@@ -1,5 +1,6 @@
 import cors from 'cors';
 import express from 'express';
+import { initializeMySQL } from './sql';
 
 const app = express();
 app.use(express.json());
@@ -24,12 +25,12 @@ app.post('/professor', (req, res) => {
   }
 
   const professorReturn = {
-    'BroncoDirect Name': 'Name',
-    Name: 'Name',
-    RMP: 'Name',
-    'RMP Name': 'Name',
-    Difficulty: 1, // 1-10
-    TakeAgain: 4.2, // 1.0- 5.0
+    broncoDirectName: 'Name',
+    name: 'Name',
+    rmp: 'Name',
+    rmpName: 'Name',
+    difficulty: 1, // 1-10
+    takeAgain: 4.2, // 1.0- 5.0
   };
   // BroncoDirect Name, RMP Name, RMP URL, Rating, Difficulty, TakeAgain(float)
 
@@ -59,5 +60,6 @@ app.post('/search', (req, res) => {
 });
 
 app.listen(process.env.PORT ?? 3000);
+void initializeMySQL();
 
 // https://reqbin.com/
