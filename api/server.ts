@@ -24,7 +24,7 @@ app.post('/professor', (req, res) => {
     return;
   }
 
-  const professorReturn = {
+const professorReturn = {
     broncoDirectName: 'Name',
     name: 'Name',
     rmp: 'Name',
@@ -36,6 +36,34 @@ app.post('/professor', (req, res) => {
 
   return res.send(professorReturn || 'in prof');
 });
+
+// trying to document /professor endpoint
+const options = {
+    definition: {
+        openapi: '3.0.0',
+        info: {
+            title: 'API Documentation'
+        },
+        paths: {
+            '/professor': {
+                get: {
+                    summary: 'To fetch single professor data',
+                    responses: {
+                        "200": {
+                            "description": 'successful response'
+                        }
+                    }
+                }
+            }
+        }
+    },
+    apis: [__server.ts]
+};
+
+const swaggerSpec = swaggerJSDoc(options);
+app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerSpec));
+
+
 app.post('/search', (req, res) => {
   // returns random list of professors
   if (checkEmpty(req.body)) {
