@@ -72,10 +72,3 @@ export const getProfessorByName = async (
   }
   return null;
 };
-
-graphQLClient
-  .request(professorRatingQuery, {
-    id: 'VGVhY2hlci0yMzM0Nzcy',
-  })
-  .then((res) => console.log(res))
-  .catch((e) => console.log(e));
