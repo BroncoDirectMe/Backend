@@ -25,6 +25,14 @@
         "selector": "typeLike",
         "format": ["PascalCase"]
       }
+    ],
+    "@typescript-eslint/no-misused-promises": [
+      "error",
+      {
+        "checksVoidReturn": {
+          "arguments": false
+        }
+      }
     ]
   }
 }
