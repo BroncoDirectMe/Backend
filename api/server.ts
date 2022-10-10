@@ -1,5 +1,8 @@
+import { getProfessorSearch } from './../scraper/scraper';
 import cors from 'cors';
 import express from 'express';
+import { ProfessorPage } from '../scraper/graphql/interface';
+import { getProfessorByName } from '../scraper/scraper';
 import { initializeMySQL } from './sql';
 
 const app = express();
@@ -10,7 +13,14 @@ function checkEmpty(values: object): boolean {
   return Object.keys(values).length === 0;
 }
 
-app.post('/professor', (req, res) => {
+/* eslint-disable @typescript-eslint/naming-convention */
+const tempMapping: { [key: string]: string } = {
+  'Hao Ji': 'Hao Ji',
+  'Ben Steichen': 'Ben Steichen',
+};
+/* eslint-enable @typescript-eslint/naming-convention */
+
+app.post('/professor', async (req, res) => {
   // API returns single professor data or null if doesn't exist
   // I'm using a single object, but Ideally this should be a nested object? this is the format that I'll just stick with
   // object input
@@ -24,39 +34,46 @@ app.post('/professor', (req, res) => {
     return;
   }
 
-  const professorReturn = {
-    broncoDirectName: 'Name',
-    name: 'Name',
-    rmp: 'Name',
-    rmpName: 'Name',
-    difficulty: 1, // 1-10
-    takeAgain: 4.2, // 1.0- 5.0
-  };
-  // BroncoDirect Name, RMP Name, RMP URL, Rating, Difficulty, TakeAgain(float)
+  const name: string = req.body.name;
+  let data: ProfessorPage | null;
 
-  return res.send(professorReturn || 'in prof');
+  // RMP name provided
+  if ('exact' in req.body) {
+    data = await getProfessorByName(name);
+  } else {
+    if (!(name in tempMapping)) {
+      res.status(400).send('professor not found in mapping');
+      return;
+    }
+    data = await getProfessorByName(tempMapping[name]);
+  }
+
+  if (!data) {
+    res.status(400).send('name of professor not in RMP');
+    return;
+  }
+
+  res.send(data);
 });
-app.post('/search', (req, res) => {
+
+app.post('/search', async (req, res) => {
   // returns random list of professors
   if (checkEmpty(req.body)) {
     res.status(400).send('please provide a json with key of count');
     return;
   }
-  if (!('count' in req.body)) {
-    res.status(400).send('must specify the amount of professors needed');
+  if ('count' in req.body && !Number.isInteger(req.body.count)) {
+    res.status(400).send('count parameter must be number');
     return;
-  } else {
-    if (!Number.isInteger(req.body.count)) {
-      res.status(400).send('please specify a number ');
-      return;
-    }
+  }
+  if (!('name' in req.body)) {
+    res.status(400).send('name of professor needs to be specified');
+    return;
   }
 
-  const searchReturn = {
-    profs: [1, 2, 3, 4, 5, 6, 7, 8, 9], // remember this should return actual professor names
-  };
+  const data = await getProfessorSearch(req.body.name);
 
-  res.send(searchReturn || 'contact peppacaiou');
+  res.send(data);
 });
 
 app.listen(process.env.PORT ?? 3000);

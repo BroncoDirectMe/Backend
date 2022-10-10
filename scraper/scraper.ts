@@ -15,11 +15,14 @@ const graphQLClient = new GraphQLClient(WEB_URL, {
 // returns a list of professrs in JSON format
 // takes in a string of professors searched name (example getProfessorSearch('kevin chun') )
 // returned Promise with firstName, lastName, and id (used to query that professor)
-const getProfessorSearch = async (name: string): Promise<ProfessorSearch[]> => {
+export const getProfessorSearch = async (
+  name: string,
+  count?: number
+): Promise<ProfessorSearch[]> => {
   const professorSearchList = await graphQLClient.request(professorQuery, {
     schoolID: SCHOOL_ID,
     text: name,
-    count: 2500, // ~2,400 professors on campus (returns up to 2,500 names)
+    count: count ?? 3000, // ~2,400 professors on campus (returns up to 2,500 names)
   });
   return professorSearchList.newSearch.teachers.edges.map(
     (edge: { node: ProfessorSearch }) => edge.node
@@ -29,7 +32,9 @@ const getProfessorSearch = async (name: string): Promise<ProfessorSearch[]> => {
 // returns a professor's data based on an id
 // returned Promise with firstName, lastNam'e, id, legacyId, avgDifficulty, avgRating, numRatings
 // example getProfessorData('VGVhY2hlci0yMzM0Nzcy')
-const getProfessorData = async (profId: string): Promise<ProfessorPage[]> => {
+export const getProfessorData = async (
+  profId: string
+): Promise<ProfessorPage> => {
   const professorSearchData = await graphQLClient.request(
     professorRatingQuery,
     {
@@ -53,7 +58,7 @@ export const getAllProfessor = async (): Promise<ProfessorSearch[]> => {
 // will only return if full name is matched
 export const getProfessorByName = async (
   name: string
-): Promise<ProfessorPage[] | null> => {
+): Promise<ProfessorPage | null> => {
   // searches RMP by professors name
   const getProfessorResults = await getProfessorSearch(name);
 
