@@ -118,6 +118,7 @@ export async function initializeMySQL(): Promise<void> {
       takeClassAgain varchar(255)
     )
   `);
+  
 
   // Testing commands:
   // const sampleProf: Professor = {
