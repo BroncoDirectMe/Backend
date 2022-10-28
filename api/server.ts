@@ -16,11 +16,12 @@ app.post('/professor', (req, res) => {
   // object input
   // {"name" : "professor"}
   if (checkEmpty(req.body)) {
-    return res.status(400).send({'err':'empty json not accepted'});
+    return res.status(400).send({ err: 'empty json not accepted' });
   }
   if (!('name' in req.body)) {
-    return res.status(400).send({'err':'name of professor needs to be specified'});
-    
+    return res
+      .status(400)
+      .send({ err: 'name of professor needs to be specified' });
   }
 
   const professorReturn = {
@@ -38,18 +39,17 @@ app.post('/professor', (req, res) => {
 app.post('/search', (req, res) => {
   // returns random list of professors
   if (checkEmpty(req.body)) {
-    return res.status(400).send({'err':'please provide a json with key of count'});
-    
+    return res
+      .status(400)
+      .send({ err: 'please provide a json with key of count' });
   }
   if (!('count' in req.body)) {
-    return res.status(400).send({'err':'must specify the amount of professors needed'});
-    
-  } 
-  else if (!Number.isInteger(req.body.count)) {
-      return res.status(400).send({'err':'please specify a number '});
-
+    return res
+      .status(400)
+      .send({ err: 'must specify the amount of professors needed' });
+  } else if (!Number.isInteger(req.body.count)) {
+    return res.status(400).send({ err: 'please specify a number ' });
   }
-
 
   const searchReturn = {
     profs: [1, 2, 3, 4, 5, 6, 7, 8, 9], // remember this should return actual professor names
@@ -57,7 +57,6 @@ app.post('/search', (req, res) => {
 
   return res.send(searchReturn || 'contact peppacaiou');
 });
-
 
 // app.get('/', (req,res)=>{
 //   res.send("get request called")
