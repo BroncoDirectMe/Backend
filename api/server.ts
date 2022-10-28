@@ -48,7 +48,7 @@ app.post('/search', (req, res) => {
       .status(400)
       .send({ err: 'must specify the amount of professors needed' });
   } else if (!Number.isInteger(req.body.count)) {
-    return res.status(400).send({ err: 'please specify a number ' });
+    return res.status(400).send({ err: 'please specify a number' });
   }
 
   const searchReturn = {
