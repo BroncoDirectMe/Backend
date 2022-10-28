@@ -1,11 +1,9 @@
-import express from 'express';
-import { expect } from 'chai';
-import chai from 'chai';
+
+import { expect,use,request }  from 'chai'; 
 import chaiHttp from 'chai-http';
 
-chai.use(chaiHttp);
-const app = express();
-const should = chai.should();
+use(chaiHttp);
+
 const server = 'localhost:3000';
 
 describe('basic test', function () {
@@ -19,7 +17,7 @@ describe('[Professor] 3 test cases:', function () {
     const nameSend = {
       test: 'val',
     };
-    const res = await chai.request(server).post('/professor').send(nameSend);
+    const res = await request(server).post('/professor').send(nameSend);
     // console.log(res)
     expect(res.body)
       .to.be.an('object')
@@ -27,7 +25,7 @@ describe('[Professor] 3 test cases:', function () {
   });
   it('Empty object', async function () {
     const nameSend = {};
-    const res = await chai.request(server).post('/professor').send(nameSend);
+    const res = await request(server).post('/professor').send(nameSend);
 
     expect(res.body)
       .to.be.an('object')
@@ -37,7 +35,7 @@ describe('[Professor] 3 test cases:', function () {
     const nameSend = {
       name: 'val',
     };
-    const res = await chai.request(server).post('/professor').send(nameSend);
+    const res = await request(server).post('/professor').send(nameSend);
     const keys = [
       'broncoDirectName',
       'name',
