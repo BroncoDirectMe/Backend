@@ -16,10 +16,10 @@ app.post('/professor', (req, res) => {
   // object input
   // {"name" : "professor"}
   if (checkEmpty(req.body)) {
-    return res.status(400).send('empty json not accepted');
+    return res.status(400).send({'err':'empty json not accepted'});
   }
   if (!('name' in req.body)) {
-    return res.status(400).send('name of professor needs to be specified');
+    return res.status(400).send({'err':'name of professor needs to be specified'});
     
   }
 
@@ -38,15 +38,15 @@ app.post('/professor', (req, res) => {
 app.post('/search', (req, res) => {
   // returns random list of professors
   if (checkEmpty(req.body)) {
-    return res.status(400).send('please provide a json with key of count');
+    return res.status(400).send({'err':'please provide a json with key of count'});
     
   }
   if (!('count' in req.body)) {
-    return res.status(400).send('must specify the amount of professors needed');
+    return res.status(400).send({'err':'must specify the amount of professors needed'});
     
   } 
   else if (!Number.isInteger(req.body.count)) {
-      return res.status(400).send('please specify a number ');
+      return res.status(400).send({'err':'please specify a number '});
 
   }
 
@@ -67,5 +67,3 @@ app.listen(process.env.PORT ?? 3000);
 void initializeMySQL();
 
 // https://reqbin.com/
-
-//https://reqbin.com/
