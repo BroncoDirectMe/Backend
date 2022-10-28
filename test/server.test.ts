@@ -1,5 +1,4 @@
-
-import { expect,use,request }  from 'chai'; 
+import { expect, use, request } from 'chai';
 import chaiHttp from 'chai-http';
 
 use(chaiHttp);
@@ -38,7 +37,7 @@ describe('[Professor] 3 test cases:', function () {
     const res = await request(server).post('/professor').send(nameSend);
     const keys = [
       'broncoDirectName',
-      'name',
+      'name', 
       'rmpName',
       'rmp',
       'difficulty',
@@ -46,7 +45,7 @@ describe('[Professor] 3 test cases:', function () {
     ];
     expect(res.body).to.be.an('object').to.have.all.keys(keys);
     keys.forEach((element) => {
-      if (element === 'difficulty' || element === 'takeAgain') {
+      if (element === 'difficulty' || element === 'takeClassAgain') {
         expect(res.body[element]).to.be.an('number');
       } else {
         expect(res.body[element]).to.be.a('string');

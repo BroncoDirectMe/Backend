@@ -30,9 +30,9 @@ app.post('/professor', (req, res) => {
     rmp: 'Name',
     rmpName: 'Name',
     difficulty: 1, // 1-10
-    takeAgain: 4.2, // 1.0- 5.0
+    takeClassAgain: 4.2, // 1.0- 5.0
   };
-  // BroncoDirect Name, RMP Name, RMP URL, Rating, Difficulty, TakeAgain(float)
+  // BroncoDirect Name, RMP Name, RMP URL, Rating, Difficulty, takeClassAgain(float)
 
   return res.send(professorReturn || 'in prof');
 });
@@ -58,9 +58,11 @@ app.post('/search', (req, res) => {
   return res.send(searchReturn || 'contact peppacaiou');
 });
 
-// app.get('/', (req,res)=>{
-//   res.send("get request called")
-// })
+
+
+app.get('/', (req,res)=>{
+  res.send("")
+})
 
 app.listen(process.env.PORT ?? 3000);
 void initializeMySQL();
