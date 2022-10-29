@@ -77,17 +77,14 @@ describe('[Search] 3 test cases', function () {
   });
   it('correct ', async function () {
     const nameSend = {
-      name: 'val',
+      count: 1,
     };
     const res = await request(server).post('/search').send(nameSend);
-    const keys = ['array'];
+    const keys = ['profs'];
     expect(res.body).to.be.an('object').to.have.all.keys(keys);
-    keys.forEach((element) => {
-      if (element === 'number') {
-        expect(res.body[element]).to.be.an('number');
-      } else {
-        expect(res.body[element]).to.be.a('string');
-      }
+    expect(res.body.profs).to.be.a('array');
+    res.body.profs.forEach((element) => {
+      expect(element).to.be.a('number');
     });
   });
 });
