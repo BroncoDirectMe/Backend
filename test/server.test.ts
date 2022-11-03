@@ -83,7 +83,7 @@ describe('[Search] 3 test cases', function () {
     const keys = ['profs'];
     expect(res.body).to.be.an('object').to.have.all.keys(keys);
     expect(res.body.profs).to.be.a('array');
-    res.body.profs.forEach((element) => {
+    res.body.profs.forEach((element: any) => {
       expect(element).to.be.a('number');
     });
   });
