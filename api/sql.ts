@@ -104,6 +104,8 @@ export async function initializeMySQL(): Promise<void> {
   // When running locally, .env should have the following variables:
   // SQL_PORT=3306
   // HOST=localhost
+  // DB_USER='user that you created'
+  // PASSWORD='password that you created'
   // When initializing, there is an option to start the mySQL server instance when your PC starts.
   // If left unchecked, the mySQL server can be started by opening 'mySQL Installer - Community' and selecting the option to reconfigure the mySQL Server.
   // User and password necessary for mySQL operations and connections are also initialized through the mySQL server setup.
