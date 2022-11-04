@@ -1,4 +1,4 @@
-import mysql from 'mysql2';
+import { createConnection } from 'mysql2';
 import { Professor } from './Professor';
 import 'dotenv/config';
 
@@ -12,7 +12,12 @@ let connection: any;
 async function execute(cmd: string, placeholder?: string[]): Promise<any> {
   const data = await new Promise((resolve) =>
     connection.execute(cmd, placeholder, (err: any, result: any) => {
-      if (err) {
+      if (err?.code === 'ER_ACCESS_DENIED_ERROR') {
+        console.log(
+          'Error: Please check that the .env file exists, matches the template in .env-template, and is in the same relative file location as .env-template'
+        );
+        process.kill(process.pid, 'SIGTERM');
+      } else if (err) {
         console.log(err);
         process.kill(process.pid, 'SIGTERM');
       }
@@ -90,24 +95,50 @@ async function updateProf({
 }
 
 /**
- * Initializes mySQL in the backend by creating a connection to the mySQL server
+ * Initializes mySQL in the backend by creating a connection to the mySQL server. See comments within the function for download instructions on mySQL by ctrl (windows) / option (mac) clicking the function name.
  */
 export async function initializeMySQL(): Promise<void> {
-  connection = mysql.createConnection({
-    host: process.env.HOST,
-    port: process.env.SQL_PORT ? parseInt(process.env.SQL_PORT) : 3306,
-    user: process.env.DB_USER,
-    password: process.env.PASSWORD,
-    database: 'broncoDirectMeDB',
-  });
   // Initializing mySQL requires a local mySQL server download from https://dev.mysql.com/doc/refman/8.0/en/installing.html.
-  // Download based on the OS you have. When initializing the server, download defaults are set to the port 3306 with host 'localhost'.
+  // Download based on the OS you have and select the recommended developer bundle in the executable.
+  // IMPORTANT NOTE: InnoDB is not required to run mySQL. Simply click next until you can create a username and password.
+  // When running locally, .env should have the following variables:
+  // SQL_PORT=3306
+  // HOST=localhost
+  // DB_USER='user that you created'
+  // PASSWORD='password that you created'
   // When initializing, there is an option to start the mySQL server instance when your PC starts.
-  // If unchecked, the mySQL server can be started by opening mySQL Installer - Community and selecting the option to reconfigure the mySQL Server.
+  // If left unchecked, the mySQL server can be started by opening 'mySQL Installer - Community' and selecting the option to reconfigure the mySQL Server.
   // User and password necessary for mySQL operations and connections are also initialized through the mySQL server setup.
   // Create a .env file using .env-template as a template to create mySQL connection.
 
-  void execute('CREATE DATABASE IF NOT EXISTS `broncoDirectMeDB`');
+  const mySQLConfig: {
+    host: string;
+    port: number;
+    user: string;
+    password: string;
+    database?: string;
+  } = {
+    host: process.env.HOST ?? 'localhost',
+    port: process.env.SQL_PORT ? parseInt(process.env.SQL_PORT) : 3306,
+    user: process.env.DB_USER ?? 'user',
+    password: process.env.PASSWORD ?? 'password',
+    database: 'broncoDirectMeDB',
+  };
+
+  connection = createConnection(mySQLConfig);
+  connection.connect((err: Error) => {
+    if (err) {
+      delete mySQLConfig.database;
+      connection = createConnection(mySQLConfig);
+      void execute('CREATE DATABASE IF NOT EXISTS `broncoDirectMeDB`');
+      console.log(
+        "Database created. Rerun the code to use the mySQL functions. NOTE: The current nodemon process must be killed with ctrl+c (windows) or cmd+c (mac) and restarted completely by running 'npm run api'."
+      );
+      // mySQL looks for a database on connection.
+      // New installations of mySQL don't have a database created, so it's created here to prevent errors when running mySQL commands
+    }
+  });
+
   void execute(`
     CREATE TABLE IF NOT EXISTS professorDB (
       broncoDirectName varchar(255) NOT NULL PRIMARY KEY,
