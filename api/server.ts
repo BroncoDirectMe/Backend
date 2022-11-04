@@ -1,8 +1,11 @@
 import cors from 'cors';
 import express from 'express';
 import { initializeMySQL } from './sql';
+import swaggerJSDoc from 'swagger-jsdoc';
+import swaggerUI from 'swagger-ui-express'
 
 const app = express();
+const port = 3306;
 app.use(express.json());
 app.use(cors());
 
@@ -38,11 +41,13 @@ const professorReturn = {
 });
 
 // trying to document /professor endpoint
-const options = {
+const options: swaggerJSDoc.OAS3Options = {
     definition: {
         openapi: '3.0.0',
         info: {
-            title: 'API Documentation'
+            title: 'API Documentation',
+            description: 'A sample API',
+            version: '1.0.0'
         },
         paths: {
             '/professor': {
@@ -50,14 +55,24 @@ const options = {
                     summary: 'To fetch single professor data',
                     responses: {
                         "200": {
-                            "description": 'successful response'
+                            description: 'successful response'
                         }
                     }
                 }
+            },
+            '/search': {
+              get: {
+                summary: 'To fetch random list of professors',
+                responses: {
+                    "200": {
+                        description: 'successful response'
+                    }
+                }
             }
-        }
+            }
+        },
     },
-    apis: [__server.ts]
+    apis: ['Backend/api/server.ts']
 };
 
 const swaggerSpec = swaggerJSDoc(options);
