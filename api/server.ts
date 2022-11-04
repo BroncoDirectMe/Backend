@@ -60,9 +60,26 @@ app.post('/search', (req, res) => {
 
 
 
-app.get('/', (req,res)=>{
+app.post('/upvote', (req,res)=>{
+  
+
   res.send("")
 })
+app.post('/downvote',(req,res)=>{
+  if(!('professor' in req.body))
+
+  res.send()
+})
+app.get('/upvote', (req,res)=>{
+  if(!('professor' in req.body))
+
+  res.send("")
+})
+app.get('/downvote',(req,res)=>{
+
+  res.send()
+})
+
 
 app.listen(process.env.PORT ?? 3000);
 void initializeMySQL();
