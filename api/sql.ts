@@ -95,9 +95,20 @@ async function updateProf({
 }
 
 /**
- * Initializes mySQL in the backend by creating a connection to the mySQL server
+ * Initializes mySQL in the backend by creating a connection to the mySQL server. See comments within the function for download instructions on mySQL by ctrl (windows) / option (mac) clicking the function name.
  */
 export async function initializeMySQL(): Promise<void> {
+  // Initializing mySQL requires a local mySQL server download from https://dev.mysql.com/doc/refman/8.0/en/installing.html.
+  // Download based on the OS you have and select the recommended developer bundle in the executable.
+  // IMPORTANT NOTE: InnoDB is not required to run mySQL. Simply click next until you can create a username and password.
+  // When running locally, .env should have the following variables:
+  // SQL_PORT=3306
+  // HOST=localhost
+  // When initializing, there is an option to start the mySQL server instance when your PC starts.
+  // If left unchecked, the mySQL server can be started by opening 'mySQL Installer - Community' and selecting the option to reconfigure the mySQL Server.
+  // User and password necessary for mySQL operations and connections are also initialized through the mySQL server setup.
+  // Create a .env file using .env-template as a template to create mySQL connection.
+
   const mySQLConfig: {
     host: string;
     port: number;
@@ -121,19 +132,10 @@ export async function initializeMySQL(): Promise<void> {
       console.log(
         "Database created. Rerun the code to use the mySQL functions. NOTE: The current nodemon process must be killed with ctrl+c (windows) or cmd+c (mac) and restarted completely by running 'npm run api'."
       );
+      // mySQL looks for a database on connection.
+      // New installations of mySQL don't have a database created, so it's created here to prevent errors when running mySQL commands
     }
   });
-
-  // Initializing mySQL requires a local mySQL server download from https://dev.mysql.com/doc/refman/8.0/en/installing.html.
-  // Download based on the OS you have and select the recommended developer bundle in the executable.
-  // IMPORTANT NOTE: InnoDB is not required to run mySQL. Simply click next until you can create a username and password.
-  // When running locally, .env should have the following variables:
-  // SQL_PORT=3306
-  // HOST=localhost
-  // When initializing, there is an option to start the mySQL server instance when your PC starts.
-  // If left unchecked, the mySQL server can be started by opening 'mySQL Installer - Community' and selecting the option to reconfigure the mySQL Server.
-  // User and password necessary for mySQL operations and connections are also initialized through the mySQL server setup.
-  // Create a .env file using .env-template as a template to create mySQL connection.
 
   void execute(`
     CREATE TABLE IF NOT EXISTS professorDB (
@@ -145,7 +147,8 @@ export async function initializeMySQL(): Promise<void> {
       takeClassAgain varchar(255)
     )
   `);
-  // // Testing commands:
+
+  // Testing commands:
   // const sampleProf: Professor = {
   //   broncoDirectName: "Poppy Gloria",
   //   rmpName: "Poppy Gloria",
