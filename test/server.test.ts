@@ -37,7 +37,7 @@ describe('[Professor] 3 test cases:', function () {
     const res = await request(server).post('/professor').send(nameSend);
     const keys = [
       'broncoDirectName',
-      'name', 
+      'name',
       'rmpName',
       'rmp',
       'difficulty',

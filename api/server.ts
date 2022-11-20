@@ -9,13 +9,10 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-function checkEmpty(content: object, res :any): boolean {
-  
+function checkEmpty(content: object, res: any): boolean {
   if (Object.keys(content).length === 0) {
-    res
-      .status(400)
-      .send({ err: 'empty json not accepted' });
-    return true
+    res.status(400).send({ err: 'empty json not accepted' });
+    return true;
   }
   return false;
 }
@@ -32,7 +29,7 @@ app.post('/professor', async (req, res) => {
   // I'm using a single object, but Ideally this should be a nested object? this is the format that I'll just stick with
   // object input
   // {"name" : "professor"}
-  if(checkEmpty(req.body,res)){
+  if (checkEmpty(req.body, res)) {
     return;
   }
   if (!('name' in req.body)) {
@@ -49,18 +46,13 @@ app.post('/professor', async (req, res) => {
     data = await getProfessorByName(name);
   } else {
     if (!(name in tempMapping)) {
-      return res
-        .status(400)
-        .send('professor not found in mapping');
-      
+      return res.status(400).send('professor not found in mapping');
     }
     data = await getProfessorByName(tempMapping[name]);
   }
 
   if (!data) {
-    res
-      .status(400)
-      .send('name of professor not in RMP');
+    res.status(400).send('name of professor not in RMP');
     return;
   }
 
@@ -69,20 +61,14 @@ app.post('/professor', async (req, res) => {
 
 app.post('/search', async (req, res) => {
   // returns random list of professors
-  if(checkEmpty(req.body,res)){
+  if (checkEmpty(req.body, res)) {
     return;
   }
   if ('count' in req.body && !Number.isInteger(req.body.count)) {
-    return res
-      .status(400)
-      .send('count parameter must be number');
-    
+    return res.status(400).send('count parameter must be number');
   }
   if (!('name' in req.body)) {
-    return res
-      .status(400)
-      .send('name of professor needs to be specified');
-    
+    return res.status(400).send('name of professor needs to be specified');
   }
 
   const data = await getProfessorSearch(req.body.name);
@@ -90,79 +76,54 @@ app.post('/search', async (req, res) => {
   res.send(data);
 });
 
-
-
-
-
-
-app.post('/upvote',async (req,res)=>{
-  const SEND_DATA: { [key: string]: number }  = {
-    
-  }
-  if(checkEmpty(req.body,res)){
+app.post('/upvote', async (req, res) => {
+  const SEND_DATA: { [key: string]: number } = {};
+  if (checkEmpty(req.body, res)) {
     return;
   }
-  if(!('professor' in req.body )){
-    return res
-      .status(400)
-      .send('Professor key is missing');
-      
+  if (!('professor' in req.body)) {
+    return res.status(400).send('Professor key is missing');
   }
-  try{
-    req.body.professor.forEach((item:string)=>{
-      SEND_DATA[item] = 1
-    })
-    res.send(SEND_DATA)
-    
-  }catch(error:unknown){
-    const ERROR_MESSAGE = error
-    res.send(ERROR_MESSAGE)
+  try {
+    req.body.professor.forEach((item: string) => {
+      SEND_DATA[item] = 1;
+    });
+    res.send(SEND_DATA);
+  } catch (error: unknown) {
+    const ERROR_MESSAGE = error;
+    res.send(ERROR_MESSAGE);
   }
+});
 
-  
-})
-
-
-app.post('/downvote',async (req,res)=>{
-  const SEND_DATA: { [key: string]: number }  = {
-
-  }
-  if(checkEmpty(req.body,res)){
+app.post('/downvote', async (req, res) => {
+  const SEND_DATA: { [key: string]: number } = {};
+  if (checkEmpty(req.body, res)) {
     return;
   }
-  if(!('professor' in req.body )){
-    return res
-      .status(400)
-      .send('Professor key is missing');
-      
+  if (!('professor' in req.body)) {
+    return res.status(400).send('Professor key is missing');
   }
-  try{
-    req.body.professor.forEach((item:string)=>{
-      SEND_DATA[item] = 0
-    })
-    res.send(SEND_DATA)
-    
-  }catch(error:unknown){
-    const ERROR_MESSAGE = error
-    res.send(ERROR_MESSAGE)
+  try {
+    req.body.professor.forEach((item: string) => {
+      SEND_DATA[item] = 0;
+    });
+    res.send(SEND_DATA);
+  } catch (error: unknown) {
+    const ERROR_MESSAGE = error;
+    res.send(ERROR_MESSAGE);
   }
+});
 
-  
-})
-
-app.get('/vote', (req,res)=>{
-
-  if(checkEmpty(req.body,res)){
+app.get('/vote', (req, res) => {
+  if (checkEmpty(req.body, res)) {
     return;
   }
-  
+
   const result = {
-    "profName": 40
-  }
-  return res.status(400)
-  .send(result)
-})
-
+    profName: 40,
+  };
+  return res.status(400).send(result);
+});
 
 app.listen(process.env.PORT ?? 3000);
 void initializeMySQL();
