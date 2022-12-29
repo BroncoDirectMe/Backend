@@ -17,7 +17,11 @@ function checkEmpty(values: object): boolean {
 const tempMapping: { [key: string]: string } = {
   'Hao Ji': 'Hao Ji',
   'Ben Steichen': 'Ben Steichen',
+  'Thanh Nguyen': 'Thanh Nguyen',
 };
+
+const tempData: { [key: string]: ProfessorPage | null } = {};
+
 /* eslint-enable @typescript-eslint/naming-convention */
 
 app.post('/professor', async (req, res) => {
@@ -37,16 +41,17 @@ app.post('/professor', async (req, res) => {
   const name: string = req.body.name;
   let data: ProfessorPage | null;
 
-  // RMP name provided
-  if ('exact' in req.body) {
-    data = await getProfessorByName(name);
-  } else {
-    if (!(name in tempMapping)) {
-      res.status(400).send('professor not found in mapping');
-      return;
-    }
-    data = await getProfessorByName(tempMapping[name]);
+  if (!(name in tempMapping)) {
+    res.status(400).send('professor not found in mapping');
+    return;
+  } else if (!(name in tempData)) {
+    // first time scraping professor data
+    console.log('ADDED NEW PROFESSOR:', name);
+    tempData[name] = await getProfessorByName(tempMapping[name]);
   }
+
+  // eslint-disable-next-line prefer-const
+  data = tempData[name];
 
   if (!data) {
     res.status(400).send('name of professor not in RMP');
