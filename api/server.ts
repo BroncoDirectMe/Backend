@@ -1,3 +1,4 @@
+import { validateEmail } from './validation';
 import { getProfessorSearch } from './../scraper/scraper';
 import cors from 'cors';
 import express from 'express';
@@ -123,6 +124,10 @@ app.get('/vote', (req, res) => {
     profName: 40,
   };
   return res.status(400).send(result);
+});
+
+app.get('/checkAuthentication', validateEmail, (req, res) => {
+  res.status(200).send(res.locals.user);
 });
 
 app.listen(process.env.PORT ?? 3000);
