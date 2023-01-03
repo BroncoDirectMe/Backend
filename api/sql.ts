@@ -140,14 +140,29 @@ export async function initializeMySQL(): Promise<void> {
   });
 
   void execute(`
-    CREATE TABLE IF NOT EXISTS professorDB (
-      broncoDirectName varchar(255) NOT NULL PRIMARY KEY,
+    CREATE TABLE IF NOT EXISTS rateMyProfessorDB (
+      profID int NOT NULL PRIMARY KEY AUTO_INCREMENT,
+      broncoDirectName varchar(255),
       rmpName varchar(255),
       rmpURL LONGTEXT,
       profRating varchar(255),
       profDifficulty varchar(255),
       takeClassAgain varchar(255)
     )
+    CREATE TABLE IF NOT EXISTS professorDB (
+      profID int NOT NULL PRIMARY KEY AUTO_INCREMENT,
+      broncoDirectName varchar(255)
+    )
+    CREATE TABLE IF NOT EXISTS votesDB (
+      id int NOT NULL PRIMARY KEY AUTO_INCREMENT,
+      userID int?,
+      voteType boolean
+    )
+    CREATE TABLE IF NOT EXISTS usersDB (
+      userID int NOT NULL PRIMARY KEY AUTO_INCREMENT,
+      userEmail varchar(255)
+    )
+    }
   `);
 
   // Testing commands:
