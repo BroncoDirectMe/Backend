@@ -5,7 +5,7 @@ import 'dotenv/config';
 let connection: any;
 
 /**
- * Internal use function to execute SQL commands as prepared statements with error catching.
+ * Internal use function to execute a single SQL command as prepared statements with error catching.
  * @param {string} SQLCommand Single quotation marks for one-line commands. Template string for multi-line commands.
  * @param {string[]} [placeholder] Optional parameter used for SQL commands that require function parameters
  */
@@ -149,44 +149,19 @@ export async function initializeMySQL(): Promise<void> {
       profDifficulty varchar(255),
       takeClassAgain varchar(255)
     )
-    CREATE TABLE IF NOT EXISTS professorDB (
-      profID int NOT NULL PRIMARY KEY AUTO_INCREMENT,
-      broncoDirectName varchar(255)
-    )
-    CREATE TABLE IF NOT EXISTS votesDB (
-      id int NOT NULL PRIMARY KEY AUTO_INCREMENT,
-      userID int?,
-      voteType boolean
-    )
-    CREATE TABLE IF NOT EXISTS usersDB (
-      userID int NOT NULL PRIMARY KEY AUTO_INCREMENT,
-      userEmail varchar(255)
-    )
-    }
   `);
-
-  // Testing commands:
-  // const sampleProf: Professor = {
-  //   broncoDirectName: "Poppy Gloria",
-  //   rmpName: "Poppy Gloria",
-  //   rmpURL: "ratemyprofessor.com/PoppyGloria",
-  //   profRating: 10.0,
-  //   profDifficulty: 2.1,
-  //   takeClassAgain: 1.0
-  // }
-
-  // addProf(sampleProf)
-  // const result = await profSearch("Poppy Gloria")
-  // console.log(result)
-
-  // void updateProf({
-  //   broncoDirectName: "Poppy Gloria",
-  //   rmpName: "Poppy",
-  //   rmpURL: "ratemyprofessor.com/PoppyGloria",
-  //   profRating: 10.0,
-  //   profDifficulty: 5.0,
-  //   takeClassAgain: 1.0
-  // })
-  // const updatedResult = await profSearch("Poppy Gloria")
-  // console.log(updatedResult)
+  void execute(`CREATE TABLE IF NOT EXISTS professorDB (
+    profID int NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    broncoDirectName varchar(255)
+  )`);
+  void execute(`CREATE TABLE IF NOT EXISTS votesDB (
+    id int NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    userID int,
+    voteType boolean
+  )`);
+  void execute(`
+  CREATE TABLE IF NOT EXISTS usersDB (
+    userID int NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    userEmail varchar(255)
+  )`);
 }
