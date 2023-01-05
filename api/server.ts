@@ -4,7 +4,7 @@ import cors from 'cors';
 import express from 'express';
 import { ProfessorPage } from '../scraper/graphql/interface';
 import { getProfessorByName } from '../scraper/scraper';
-import { initializeMySQL } from './sql';
+import { initializeMySQL, initializeUserSQl } from './sql';
 
 const app = express();
 app.use(express.json());
@@ -128,9 +128,11 @@ app.get('/vote', (req, res) => {
 
 app.get('/checkAuthentication', validateEmail, (req, res) => {
   res.status(200).send(res.locals.user);
+
 });
 
 app.listen(process.env.PORT ?? 3000);
 void initializeMySQL();
+
 
 // https://reqbin.com/

@@ -149,6 +149,13 @@ export async function initializeMySQL(): Promise<void> {
       takeClassAgain varchar(255)
     )
   `);
+  void execute(`
+  CREATE TABLE IF NOT EXISTS userDB (
+    email varchar(255) NOT NULL ,
+    USER ID varchar(255) PRIMARY KEY,
+
+  )
+`);
 
   // Testing commands:
   // const sampleProf: Professor = {
@@ -174,4 +181,29 @@ export async function initializeMySQL(): Promise<void> {
   // })
   // const updatedResult = await profSearch("Poppy Gloria")
   // console.log(updatedResult)
+}
+
+
+async function updateUser({
+  professorName:string,
+  vote:boolean
+
+}: Professor): Promise<void> {
+  void execute(
+    `UPDATE userDB SET 
+  rmpName = ?,
+  rmpURL = ?,
+  profRating = ?,
+  profDifficulty = ?,
+  takeClassAgain = ?
+  WHERE broncoDirectName = ?`,
+    [
+      rmpName,
+      rmpURL,
+      profRating.toFixed(2),
+      profDifficulty.toFixed(2),
+      takeClassAgain.toFixed(2),
+      broncoDirectName,
+    ]
+  );
 }
