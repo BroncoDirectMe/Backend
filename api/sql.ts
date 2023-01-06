@@ -5,7 +5,7 @@ import 'dotenv/config';
 let connection: any;
 
 /**
- * Internal use function to execute SQL commands as prepared statements with error catching.
+ * Internal use function to execute a single SQL command as prepared statements with error catching.
  * @param {string} SQLCommand Single quotation marks for one-line commands. Template string for multi-line commands.
  * @param {string[]} [placeholder] Optional parameter used for SQL commands that require function parameters
  */
@@ -34,6 +34,14 @@ async function execute(cmd: string, placeholder?: string[]): Promise<any> {
  * Value can be extracted by awaiting function call within an async function
  */
 async function profSearch(broncoDirectName: string): Promise<void> {
+  const result = await execute(
+    'SELECT * FROM `professorDB` WHERE `broncoDirectName` = ?',
+    [broncoDirectName]
+  );
+  return result;
+}
+
+async function userVoteCheck(userID: number, professorID: number): Promise<void> {
   const result = await execute(
     'SELECT * FROM `professorDB` WHERE `broncoDirectName` = ?',
     [broncoDirectName]
@@ -76,7 +84,7 @@ async function updateProf({
   takeClassAgain,
 }: Professor): Promise<void> {
   void execute(
-    `UPDATE professorDB SET 
+    `UPDATE professor SET 
   rmpName = ?,
   rmpURL = ?,
   profRating = ?,
@@ -140,8 +148,10 @@ export async function initializeMySQL(): Promise<void> {
   });
 
   void execute(`
-    CREATE TABLE IF NOT EXISTS professorDB (
-      broncoDirectName varchar(255) NOT NULL PRIMARY KEY,
+    CREATE TABLE IF NOT EXISTS rateMyProfessor (
+      ID int NOT NULL PRIMARY KEY AUTO_INCREMENT,
+      professorID int,
+      broncoDirectName varchar(255),
       rmpName varchar(255),
       rmpURL LONGTEXT,
       profRating varchar(255),
@@ -149,61 +159,30 @@ export async function initializeMySQL(): Promise<void> {
       takeClassAgain varchar(255)
     )
   `);
+  void execute(`CREATE TABLE IF NOT EXISTS professor (
+    professorID int NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    broncoDirectName varchar(255) NOT NULL,
+  )`);
+  void execute(`CREATE TABLE IF NOT EXISTS votes (
+    ID int NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    userID int NOT NULL, 
+    professorID int NOT NULL,
+    voteType boolean NOT NULL  
+
+  )`);
   void execute(`
-  CREATE TABLE IF NOT EXISTS userDB (
-    email varchar(255) NOT NULL ,
-    USER ID varchar(255) PRIMARY KEY,
-
-  )
-`);
-
-  // Testing commands:
-  // const sampleProf: Professor = {
-  //   broncoDirectName: "Poppy Gloria",
-  //   rmpName: "Poppy Gloria",
-  //   rmpURL: "ratemyprofessor.com/PoppyGloria",
-  //   profRating: 10.0,
-  //   profDifficulty: 2.1,
-  //   takeClassAgain: 1.0
-  // }
-
-  // addProf(sampleProf)
-  // const result = await profSearch("Poppy Gloria")
-  // console.log(result)
-
-  // void updateProf({
-  //   broncoDirectName: "Poppy Gloria",
-  //   rmpName: "Poppy",
-  //   rmpURL: "ratemyprofessor.com/PoppyGloria",
-  //   profRating: 10.0,
-  //   profDifficulty: 5.0,
-  //   takeClassAgain: 1.0
-  // })
-  // const updatedResult = await profSearch("Poppy Gloria")
-  // console.log(updatedResult)
+  CREATE TABLE IF NOT EXISTS user (  
+    userID int NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    email varchar(255) NOT NULL,
+  )`);
 }
 
 
-async function updateUser({
-  professorName:string,
+String function updateUser({
+  professorID:number,  
+  userID:number
   vote:boolean
 
-}: Professor): Promise<void> {
-  void execute(
-    `UPDATE userDB SET 
-  rmpName = ?,
-  rmpURL = ?,
-  profRating = ?,
-  profDifficulty = ?,
-  takeClassAgain = ?
-  WHERE broncoDirectName = ?`,
-    [
-      rmpName,
-      rmpURL,
-      profRating.toFixed(2),
-      profDifficulty.toFixed(2),
-      takeClassAgain.toFixed(2),
-      broncoDirectName,
-    ]
-  );
+}): Promise<void> {
+  
 }

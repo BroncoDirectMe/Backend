@@ -17,7 +17,11 @@ function checkEmpty(content: object, res: any): boolean {
   }
   return false;
 }
-
+interface userCookie{
+  userID: number,
+  professorID: number,
+  voteType: boolean
+}
 /* eslint-disable @typescript-eslint/naming-convention */
 const tempMapping: { [key: string]: string } = {
   'Hao Ji': 'Hao Ji',
@@ -127,6 +131,25 @@ app.get('/vote', (req, res) => {
 });
 
 app.get('/checkAuthentication', validateEmail, (req, res) => {
+  // req.body needs to have three things userID, ProfID, vote
+  if('userID' in req.body  ){
+      if(!(Number.isInteger(req.body.userID))){ // nested because i forgot how to set a default value if it doesn't turn up
+        res.status(400).send({'message': 'please make sure your userID is an integer '})
+      }
+  }
+  if('professorID' in req.body){
+    if(!(Number.isInteger(req.body.professorID))){
+      res.status(400).send({'message': 'please make sure your professorID is an integer '})
+    }
+
+  }if('voteType' in req.body ){
+    if(!(Number.isInteger(req.body.professorID))){
+      res.status(400).send({'message': 'please make sure your professorID is an integer '})
+    }
+    
+  }
+  
+
   res.status(200).send(res.locals.user);
 
 });
