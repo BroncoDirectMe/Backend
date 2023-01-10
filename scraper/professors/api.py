@@ -18,12 +18,10 @@ professors = set()
 # export professors set into a json file
 # look into search 2 letters to avoid missing professors
 
-# UNTESTED 
-# def convert_professors(professors: set) -> None:
-#     prof = {'professors': list(professors)}
-#     json_object = json.dumps(prof, indent=4)
-#     with open("professors.json", "w") as FILE:
-#         FILE.write(json_object)
+def convert_professors(professors: set) -> None:
+    with open("professors.txt", "w") as txt_file:
+        for prof in professors:
+            txt_file.write(prof + "\n")
 
 def format_name(name: str) -> str:
     """This function takes in a professor name and formats the return
@@ -90,6 +88,7 @@ def main():
             print(f"{letter} failed retrying later...\n")
     
     print(f"\n\nname scraping process complete!\ntotal professors: {len(professors)}\n{professors}")
+    convert_professors(professors)
 
 if __name__ == '__main__':
     main()
