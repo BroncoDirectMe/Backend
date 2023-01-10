@@ -48,14 +48,11 @@ def search(driver, letter: str) -> None:
     WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.ID, "ctl00_ContentPlaceHolder1_prsn_name"))).send_keys(letter)
     
     # buttons
-    time.sleep(1) 
     WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.ID, "ctl00_ContentPlaceHolder1_CK_STAFF"))).click() # staff
     
-    time.sleep(1)
     WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.ID, "ctl00_ContentPlaceHolder1_CK_OTHERS"))).click() # other
     
     # submit
-    time.sleep(7) 
     WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.ID, "ctl00_ContentPlaceHolder1_PublicSearchButton"))).click()
     
     # get professor names, format the name, and add them to the set
@@ -65,7 +62,6 @@ def search(driver, letter: str) -> None:
         professors.add(format_name(name.text))
     
     # sleep between professor letter search
-    time.sleep(2)
 
 def main():
     # opens webdriver
@@ -75,7 +71,8 @@ def main():
     # list of all letter (a-z)
     letters = []
     for i in range(97, 123):
-        letters.append(chr(i))
+        for j in range(97,123):
+            letters.append(chr(i)+chr(j))
 
     # iterates each letter in letters
     for letter in letters:   
