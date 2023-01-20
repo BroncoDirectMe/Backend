@@ -31,5 +31,6 @@ jspm_packages/
 .vscode-test
 
 # ------- Extra -------
+scraper/professors/professors.txt
 scraper/test.ts
 .vscode/
