@@ -1,27 +1,57 @@
 import { validateEmail } from './validation';
 import { getProfessorSearch } from './../scraper/scraper';
 import cors from 'cors';
+
 import express from 'express';
 import { ProfessorPage } from '../scraper/graphql/interface';
 import { getProfessorByName } from '../scraper/scraper';
-import { initializeMySQL, initializeUserSQl } from './sql';
+import { initializeMySQL,createUserID, getUserID, addVote, getProf} from './sql';
+import { create } from 'ts-node';
+
+import {sign,verify,JwtPayload} from 'jsonwebtoken'
+import {readFileSync} from 'fs'
 
 const app = express();
 app.use(express.json());
 app.use(cors());
-
-function checkEmpty(content: object, res: any): boolean {
+interface User{
+  userID: number,
+  email: string
+}
+interface RawUserVote{
+  userID: number,
+  professorName: string,
+  token: string
+}
+function checkEmpty(content: User, res: any): boolean {
   if (Object.keys(content).length === 0) {
     res.status(400).send({ err: 'empty json not accepted' });
     return true;
   }
   return false;
 }
-interface userCookie{
-  userID: number,
-  professorID: number,
-  voteType: boolean
+
+function encrypt(id:any[]):string{
+  
+  // return "test"
+  const key:string = process.env.TOKEN_HASH as string
+  // const key = "test"
+  const token:string = sign(id, key)
+  console.log(token)
+  return token
+  
+
+
+}// make sure to debug these two functions
+
+function decrypt(token:string):string|JwtPayload{
+  const key:string = process.env.TOKEN_HASH as string
+  const id = verify(token,key)
+  return id
+
 }
+
+
 /* eslint-disable @typescript-eslint/naming-convention */
 const tempMapping: { [key: string]: string } = {
   'Hao Ji': 'Hao Ji',
@@ -40,7 +70,7 @@ app.post('/professor', async (req, res) => {
   if (!('name' in req.body)) {
     return res
       .status(400)
-      .send({ err: 'name of professor needs to be specified' });
+
   }
 
   const name: string = req.body.name;
@@ -81,81 +111,106 @@ app.post('/search', async (req, res) => {
   res.send(data);
 });
 
-app.post('/upvote', async (req, res) => {
-  const SEND_DATA: { [key: string]: number } = {};
-  if (checkEmpty(req.body, res)) {
-    return;
-  }
-  if (!('professor' in req.body)) {
-    return res.status(400).send('Professor key is missing');
-  }
-  try {
-    req.body.professor.forEach((item: string) => {
-      SEND_DATA[item] = 1;
-    });
-    res.send(SEND_DATA);
-  } catch (error: unknown) {
-    const ERROR_MESSAGE = error;
-    res.send(ERROR_MESSAGE);
-  }
-});
 
-app.post('/downvote', async (req, res) => {
-  const SEND_DATA: { [key: string]: number } = {};
-  if (checkEmpty(req.body, res)) {
-    return;
-  }
-  if (!('professor' in req.body)) {
-    return res.status(400).send('Professor key is missing');
-  }
-  try {
-    req.body.professor.forEach((item: string) => {
-      SEND_DATA[item] = 0;
-    });
-    res.send(SEND_DATA);
-  } catch (error: unknown) {
-    const ERROR_MESSAGE = error;
-    res.send(ERROR_MESSAGE);
-  }
-});
 
-app.get('/vote', (req, res) => {
-  if (checkEmpty(req.body, res)) {
-    return;
-  }
+app.post('/vote', (req, res) => { // debug this
+  // needs to have a vote, encrypted userID and professor name
 
-  const result = {
-    profName: 40,
-  };
-  return res.status(400).send(result);
-});
-
-app.get('/checkAuthentication', validateEmail, (req, res) => {
-  // req.body needs to have three things userID, ProfID, vote
-  if('userID' in req.body  ){
-      if(!(Number.isInteger(req.body.userID))){ // nested because i forgot how to set a default value if it doesn't turn up
-        res.status(400).send({'message': 'please make sure your userID is an integer '})
-      }
-  }
-  if('professorID' in req.body){
-    if(!(Number.isInteger(req.body.professorID))){
-      res.status(400).send({'message': 'please make sure your professorID is an integer '})
-    }
-
-  }if('voteType' in req.body ){
-    if(!(Number.isInteger(req.body.professorID))){
-      res.status(400).send({'message': 'please make sure your professorID is an integer '})
-    }
-    
-  }
   
-
-  res.status(200).send(res.locals.user);
-
+  if (checkEmpty(req.body, res)) {
+    return;
+  }
+  if (!('professor' in req.body)) {
+    return res.status(400).send('Professor key is missing')
+  }
+  if(!('vote' in req.body)){
+    return res.status(400).send('Vote key is missing')
+  }
+  if(!('token' in req.body)){
+    return res.status(400).send('token key is missing')
+  }
+  const profID = getProf(req.body.professor)
+  const token = req.body.token
+  const userInfo = decrypt(token) as User
+  console.log(userInfo)
+  
+  // check if vote exists, if not create a new one, else if they are equal delete
+  return res.status(400).send({profID});
 });
 
+// app.post('/login', validateEmail, async (req, res) => {
+//   const email:string = res.locals.user.mail
+  
+//   try{
+//     await createUserID(email);
+//     const userObj = await getUserID(email)
+//     const id = userObj[0]//debug this 
+//     const encryptedID:string = encrypt(id)
+//     res.status(200).send(
+//       {
+//         "status": "created successfully",
+//         "token": encryptedID
+//       });
+//   }catch(err: unknown){
+//     res.status(400).send({"status": "created unsucssefully, check for email header"})
+
+//   }
+// });
+// app.post('/create', async (req,res)=>{
+  
+// })
+app.get('/test_signup', async (req,res)=>{
+  const email:string = req.body.email
+  await createUserID(email)
+  const userID=await getUserID(email)
+  
+  const encryptedVal = encrypt(userID[0])
+  // console.log(req.body)
+  res.send({test:encryptedVal})
+})
+// app.get('get_database',async (req,res)=>{
+// })
 app.listen(process.env.PORT ?? 3000);
 void initializeMySQL();
 
 
 // https://reqbin.com/
+
+// app.post('/upvote', async (req, res) => {
+//   const SEND_DATA: { [key: string]: number } = {};
+//   if (checkEmpty(req.body, res)) {
+//     return;
+//   }
+//   if (!('professor' in req.body)) {
+//     return res.status(400).send('Professor key is missing');
+//   }
+//   try {
+//     req.body.professor.forEach((item: string) => {
+//       SEND_DATA[item] = 1;
+//     });
+//     res.send(SEND_DATA);
+//   } catch (error: unknown) {
+//     const ERROR_MESSAGE = error;
+//     res.send(ERROR_MESSAGE);
+//   }
+// });
+
+// app.post('/downvote', async (req, res) => {
+//   const SEND_DATA: { [key: string]: number } = {};
+//   if (checkEmpty(req.body, res)) {
+//     return;
+//   }
+//   if (!('professor' in req.body)) {
+//     return res.status(400).send('Professor key is missing');
+//   }
+  
+//   try {
+//     req.body.professor.forEach((item: string) => {
+//       SEND_DATA[item] = 0;
+//     });
+//     res.send(SEND_DATA);
+//   } catch (error: unknown) {
+//     const ERROR_MESSAGE = error;
+//     res.send(ERROR_MESSAGE);
+//   }
+// });

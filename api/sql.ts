@@ -33,7 +33,7 @@ async function execute(cmd: string, placeholder?: string[]): Promise<any> {
  * @returns {Promise<void>} Array of JSON values.
  * Value can be extracted by awaiting function call within an async function
  */
-async function profSearch(broncoDirectName: string): Promise<void> {
+export async function profSearch(broncoDirectName: string): Promise<void> {
   const result = await execute(
     'SELECT * FROM `professorDB` WHERE `broncoDirectName` = ?',
     [broncoDirectName]
@@ -41,13 +41,7 @@ async function profSearch(broncoDirectName: string): Promise<void> {
   return result;
 }
 
-async function userVoteCheck(userID: number, professorID: number): Promise<void> {
-  const result = await execute(
-    'SELECT * FROM `professorDB` WHERE `broncoDirectName` = ?',
-    [broncoDirectName]
-  );
-  return result;
-}
+
 
 /**
  * Adds a professor to the SQL database
@@ -161,28 +155,129 @@ export async function initializeMySQL(): Promise<void> {
   `);
   void execute(`CREATE TABLE IF NOT EXISTS professor (
     professorID int NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    broncoDirectName varchar(255) NOT NULL,
+    broncoDirectName varchar(255) NOT NULL
   )`);
   void execute(`CREATE TABLE IF NOT EXISTS votes (
     ID int NOT NULL PRIMARY KEY AUTO_INCREMENT,
     userID int NOT NULL, 
     professorID int NOT NULL,
-    voteType boolean NOT NULL  
-
+    voteType boolean
   )`);
   void execute(`
   CREATE TABLE IF NOT EXISTS user (  
     userID int NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    email varchar(255) NOT NULL,
+    email varchar(255) NOT NULL
   )`);
-}
-
-
-String function updateUser({
-  professorID:number,  
-  userID:number
-  vote:boolean
-
-}): Promise<void> {
+  // const sampleProf: Professor = {
+  //   broncoDirectName: "Poppy Gloria",
+  //   rmpName: "Poppy Gloria",
+  //   rmpURL: "ratemyprofessor.com/PoppyGloria",
+  //   profRating: 10.0,
+  //   profDifficulty: 2.1,
+  //   takeClassAgain: 1.0
+  // }
   
+  // addProf(sampleProf)
+  // const result = await profSearch("Poppy Gloria")
+  // console.log(result)
+  
+  // void updateProf({
+  //   broncoDirectName: "Poppy Gloria",
+  //   rmpName: "Poppy",
+  //   rmpURL: "ratemyprofessor.com/PoppyGloria",
+  //   profRating: 10.0,
+  //   profDifficulty: 5.0,
+  //   takeClassAgain: 1.0
+  // })
+  // const updatedResult = await profSearch("Poppy Gloria")
+  // console.log(updatedResult)
 }
+
+
+export async function getProf(name:string):Promise<void>{
+  const result = await execute(`
+    SELECT professorID FROM professor WHERE broncoDirectName = ?`,
+    [name]
+  )
+  return result
+}
+export async function getUserID(email:string):Promise<any>{
+  const result = await execute(`
+    SELECT * FROM user WHERE email = ?`,
+    [email]
+  )
+  return result // make sure this gets debugged
+}
+export async function getVote(userID:number,professorID: number):Promise<void>{
+  const result = await execute(`
+    SELECT * FROM votes WHERE userID = ? AND professorID = ? `,
+    [userID.toFixed(0),
+      professorID.toFixed(0)
+    ]
+  )
+  return result
+}
+export async function addVote(
+  professorID :number, 
+  userID:number,
+  vote:boolean,
+): Promise<void> {
+  
+  void execute(
+    `INSERT INTO votes(voteType, userID, professorID)
+    VALUES(?,?,?)`,
+    [
+      vote.toString(),
+      userID.toFixed(0),
+      professorID.toFixed(0),
+    ]
+    );
+}
+export async function deleteVote(
+  professorID :number, 
+  userID:number
+): Promise<void> {
+  void execute(
+    `DELETE FROM votes
+    WHERE userID = ? AND professorID = ?`,
+    [
+      
+      userID.toFixed(0),
+      professorID.toFixed(0),
+    ]
+  );
+}
+// export async function retrieveVote(
+//   userID: number, // decrypted
+//   professorID: number
+
+// ):Promise<any[]>{
+//   void execute(`
+//     SELECT voteType FROM votes WHERE userID = ? AND professorID = ?
+  
+//   `,
+//   [
+//     userID.toFixed(0),
+//     professorID.toFixed(0)
+//   ]
+//   )
+
+// }
+
+
+export async function createUserID(
+  email:string
+): Promise<void>{
+  void execute(`INSERT INTO user(email) 
+  VALUES(?)`,
+      [
+        email
+      ]
+  )
+}
+
+
+
+
+
+// test code
