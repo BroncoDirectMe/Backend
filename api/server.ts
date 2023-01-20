@@ -133,40 +133,27 @@ app.post('/vote', (req, res) => { // debug this
   const token = req.body.token
   const userInfo = decrypt(token) as User
   console.log(userInfo)
+
   
   // check if vote exists, if not create a new one, else if they are equal delete
+  
   return res.status(400).send({profID});
 });
 
-// app.post('/login', validateEmail, async (req, res) => {
-//   const email:string = res.locals.user.mail
-  
-//   try{
-//     await createUserID(email);
-//     const userObj = await getUserID(email)
-//     const id = userObj[0]//debug this 
-//     const encryptedID:string = encrypt(id)
-//     res.status(200).send(
-//       {
-//         "status": "created successfully",
-//         "token": encryptedID
-//       });
-//   }catch(err: unknown){
-//     res.status(400).send({"status": "created unsucssefully, check for email header"})
-
-//   }
-// });
-// app.post('/create', async (req,res)=>{
-  
-// })
-app.get('/test_signup', async (req,res)=>{
-  const email:string = req.body.email
+app.post('/login', validateEmail, async (req, res) => {
+  const email:string = res.locals.user.mail
   await createUserID(email)
   const userID=await getUserID(email)
   
   const encryptedVal = encrypt(userID[0])
   // console.log(req.body)
-  res.send({test:encryptedVal})
+  res.send({token:encryptedVal})
+});
+// app.post('/create', async (req,res)=>{
+  
+// })
+app.get('/test_signup', async (req,res)=>{
+  
 })
 // app.get('get_database',async (req,res)=>{
 // })
