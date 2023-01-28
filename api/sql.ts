@@ -64,6 +64,14 @@ function addProf({
 }
 
 /**
+ * Adds a professor to the profDB table in SQL database
+ * @param {Professor} professor See professor interface (/api/Professor.d.ts)
+ */
+function addProfName({ broncoDirectName }: Professor): void {
+  void execute('INSERT INTO professorDB VALUES (?)', [broncoDirectName]);
+}
+
+/**
  * Updates existing professor in the SQL database
  * @param {Professor} newProfessor See professor interface (/api/Professor.d.ts)
  */
