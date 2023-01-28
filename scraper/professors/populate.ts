@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 // @ts-nocheck
-// import { addProf } from '../../api/sql';
+import { addProfName } from '../../api/sql';
 
 const fs = require('fs');
 const readline = require('readline');
@@ -26,7 +26,7 @@ readline
     );
 
     // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
-    // addProf(name[1] + ' ' + name[0])  // addProf function not yet updated to new schema
+    addProfName(name[1] + ' ' + name[0]);
 
     // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
     console.log(name[1] + ' ' + name[0]);
