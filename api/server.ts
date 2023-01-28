@@ -3,7 +3,7 @@ import cors from 'cors';
 import express from 'express';
 import { ProfessorPage } from '../scraper/graphql/interface';
 import { getProfessorByName } from '../scraper/scraper';
-import { initializeMySQL } from './sql';
+import { initializeMySQL, checkProfName } from './sql';
 
 const app = express();
 app.use(express.json());
@@ -42,13 +42,11 @@ app.post('/professor', async (req, res) => {
   let data: ProfessorPage | null;
 
   // RMP name provided
-  if ('exact' in req.body) {
+  const result = await checkProfName(name); // row data of mysql, will return the name if exists
+  if (result.length > 0) {
     data = await getProfessorByName(name);
   } else {
-    if (!(name in tempMapping)) {
-      return res.status(400).send('professor not found in mapping');
-    }
-    data = await getProfessorByName(tempMapping[name]);
+    return res.status(400).send('professor not found in mapping');
   }
 
   if (!data) {
