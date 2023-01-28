@@ -35,7 +35,7 @@ async function execute(cmd: string, placeholder?: string[]): Promise<any> {
  */
 async function profSearch(broncoDirectName: string): Promise<void> {
   const result = await execute(
-    'SELECT * FROM `professorDB` WHERE `broncoDirectName` = ?',
+    'SELECT * FROM `rateMyProfessorDB` WHERE `broncoDirectName` = ?',
     [broncoDirectName]
   );
   return result;
@@ -53,7 +53,8 @@ function addProf({
   profDifficulty,
   takeClassAgain,
 }: Professor): void {
-  void execute('INSERT INTO professorDB VALUES (?, ?, ?, ?, ?, ?)', [
+  void execute('INSERT INTO rateMyProfessorDB VALUES (?, ?, ?, ?, ?, ?, ?)', [
+    '',
     broncoDirectName,
     rmpName,
     rmpURL,
@@ -65,10 +66,25 @@ function addProf({
 
 /**
  * Adds a professor to the profDB table in SQL database
- * @param {Professor} professor See professor interface (/api/Professor.d.ts)
+ * @param {string} broncoDirectName name to be added
  */
-function addProfName({ broncoDirectName }: Professor): void {
-  void execute('INSERT INTO professorDB VALUES (?)', [broncoDirectName]);
+export function addProfName(broncoDirectName: string): void {
+  void execute('INSERT INTO professorDB VALUES (?, ?)', ['', broncoDirectName]);
+}
+
+/**
+ * Checks if a professor exists in the database (meaning they are a valid professor)
+ * @param {string} broncoDirectName name to be checked
+ * @return {Promise<object[]>} array of row data in db
+ */
+export async function checkProfName(
+  broncoDirectName: string
+): Promise<object[]> {
+  const result = await execute(
+    'SELECT * FROM `professorDB` WHERE `broncoDirectName` = ?',
+    [broncoDirectName]
+  );
+  return result;
 }
 
 /**
@@ -172,4 +188,20 @@ export async function initializeMySQL(): Promise<void> {
     userID int NOT NULL PRIMARY KEY AUTO_INCREMENT,
     userEmail varchar(255)
   )`);
+
+  // const sampleProf: Professor = {
+  //   broncoDirectName: 'Poppy Gloria',
+  //   rmpName: 'Poppy Gloria',
+  //   rmpURL: 'ratemyprofessor.com/PoppyGloria',
+  //   profRating: 10.0,
+  //   profDifficulty: 2.1,
+  //   takeClassAgain: 1.0,
+  // };
+
+  // console.log('yeet');
+  // addProf(sampleProf);
+  // const result = await profSearch('Poppy Gloria');
+  // console.log(result);
+  addProfName('Ben Steichen');
+  addProfName('Thanh Nguyen');
 }
