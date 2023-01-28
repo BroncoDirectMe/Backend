@@ -202,6 +202,4 @@ export async function initializeMySQL(): Promise<void> {
   // addProf(sampleProf);
   // const result = await profSearch('Poppy Gloria');
   // console.log(result);
-  addProfName('Ben Steichen');
-  addProfName('Thanh Nguyen');
 }
