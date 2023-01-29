@@ -34,14 +34,14 @@ app.post('/professor', async (req, res) => {
       .send({ err: 'name of professor needs to be specified' });
   }
 
-  const name: string = req.body.name.toLowerCase();
+  const name: string = req.body.name;
   let data: ProfessorPage | null;
 
   // RMP name provided
-  if (!(name in cachedProfData)) {
+  if (!(name.toLowerCase() in cachedProfData)) {
     const result = await checkProfName(name); // row data of mysql, will return the name if exists
     if (result.length > 0) {
-      cachedProfData[name] = await getProfessorByName(name); // maps data for every new professor
+      cachedProfData[name.toLowerCase()] = await getProfessorByName(name); // maps data for every new professor
       console.log('NEW PROFESSOR ADDED, ', name);
     } else {
       return res.status(400).send('professor not found in mapping');
@@ -49,7 +49,7 @@ app.post('/professor', async (req, res) => {
   }
 
   // eslint-disable-next-line prefer-const
-  data = cachedProfData[name];
+  data = cachedProfData[name.toLowerCase()];
 
   if (!data) {
     res.status(400).send('name of professor not in RMP');
