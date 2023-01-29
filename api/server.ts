@@ -3,7 +3,7 @@ import cors from 'cors';
 import express from 'express';
 import { ProfessorPage } from '../scraper/graphql/interface';
 import { getProfessorByName } from '../scraper/scraper';
-import { initializeMySQL } from './sql';
+import { initializeMySQL, checkProfName } from './sql';
 
 const app = express();
 app.use(express.json());
@@ -17,13 +17,9 @@ function checkEmpty(content: object, res: any): boolean {
   return false;
 }
 
-/* eslint-disable @typescript-eslint/naming-convention */
-const tempMapping: { [key: string]: string } = {
-  'Hao Ji': 'Hao Ji',
-  'Ben Steichen': 'Ben Steichen',
-};
-/* eslint-enable @typescript-eslint/naming-convention */
+const cachedProfData: { [key: string]: ProfessorPage | null } = {};
 
+/* eslint-enable @typescript-eslint/naming-convention */
 app.post('/professor', async (req, res) => {
   // API returns single professor data or null if doesn't exist
   // I'm using a single object, but Ideally this should be a nested object? this is the format that I'll just stick with
@@ -42,14 +38,18 @@ app.post('/professor', async (req, res) => {
   let data: ProfessorPage | null;
 
   // RMP name provided
-  if ('exact' in req.body) {
-    data = await getProfessorByName(name);
-  } else {
-    if (!(name in tempMapping)) {
+  if (!(name in cachedProfData)) {
+    const result = await checkProfName(name); // row data of mysql, will return the name if exists
+    if (result.length > 0) {
+      cachedProfData[name] = await getProfessorByName(name); // maps data for every new professor
+      console.log('NEW PROFESSOR ADDED, ', name);
+    } else {
       return res.status(400).send('professor not found in mapping');
     }
-    data = await getProfessorByName(tempMapping[name]);
   }
+
+  // eslint-disable-next-line prefer-const
+  data = cachedProfData[name];
 
   if (!data) {
     res.status(400).send('name of professor not in RMP');
