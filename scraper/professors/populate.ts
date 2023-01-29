@@ -1,14 +1,11 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
-// @ts-nocheck
-import { addProfName } from '../../api/sql';
-
-const fs = require('fs');
-const readline = require('readline');
-
-readline
-  .createInterface({
-    input: fs.createReadStream('./scraper/professors/professors.txt'),
-  })
+export async function readFile(): Promise<string[]> {
+  const readline = require('readline');
+  const fs = require('fs');
+  const nameArray = [];
+  const readStream = fs.createReadStream('./scraper/professors/professors.txt');
+  const rl = readline.createInterface({
+    input: readStream,
+  });
 
   /* 
   Manual editing is required
@@ -16,18 +13,19 @@ readline
   so some names will be very inaccurate and will need to be edited in the database
   */
 
-  .on('line', (line) => {
-    if (line.includes('//')) return; // lines in professor.txt marked with a '//' will be skipped
+  for await (const line of rl) {
+    if (line.includes('//')) continue; // lines in professor.txt marked with a '//' will be skipped
     const titles = ['Mr', 'Ms', 'Mrs', 'PhD', 'II', 'III', 'IV'];
     const specialChars = /[.(]/;
     let name = line.split(/[\s,]/);
     name = name.filter(
-      (a) => !titles.includes(a) && a.length > 1 && !a.match(specialChars)
+      (a: string) =>
+        !titles.includes(a) && a.length > 1 && !a.match(specialChars)
     );
 
     // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
-    addProfName(name[1] + ' ' + name[0]);
-
-    // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
-    console.log(name[1] + ' ' + name[0]);
-  });
+    nameArray.push(name[1] + ' ' + name[0]);
+  }
+  console.log(nameArray);
+  return nameArray;
+}

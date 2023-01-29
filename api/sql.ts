@@ -1,5 +1,6 @@
 import { createConnection } from 'mysql2';
 import { Professor } from './Professor';
+import { readFile } from '../scraper/professors/populate';
 import 'dotenv/config';
 
 let connection: any;
@@ -30,7 +31,7 @@ async function execute(cmd: string, placeholder?: string[]): Promise<any> {
 /**
  * Finds a professor in the SQL Database given their BroncoDirect name.
  * @param {string}  broncoDirectName BroncoDirect name
- * @returns {Promise<void>} Array of JSON values.
+ * @return {Promise<void>} Array of JSON values.
  * Value can be extracted by awaiting function call within an async function
  */
 async function profSearch(broncoDirectName: string): Promise<void> {
@@ -69,13 +70,15 @@ function addProf({
  * @param {string} broncoDirectName name to be added
  */
 export function addProfName(broncoDirectName: string): void {
-  void execute('INSERT INTO professorDB VALUES (?, ?)', ['', broncoDirectName]);
+  void execute('INSERT INTO professorDB (broncoDirectName) VALUES (?)', [
+    broncoDirectName,
+  ]);
 }
 
 /**
  * Checks if a professor exists in the database (meaning they are a valid professor)
  * @param {string} broncoDirectName name to be checked
- * @return {Promise<object[]>} array of row data in db
+ * @return {Promise<object[]>} Array of JSON values
  */
 export async function checkProfName(
   broncoDirectName: string
@@ -100,7 +103,7 @@ async function updateProf({
   takeClassAgain,
 }: Professor): Promise<void> {
   void execute(
-    `UPDATE professorDB SET 
+    `UPDATE professorDB SET
   rmpName = ?,
   rmpURL = ?,
   profRating = ?,
@@ -116,6 +119,13 @@ async function updateProf({
       broncoDirectName,
     ]
   );
+}
+
+// used to populate professorDB if doesn't already exist
+async function checkDatabaseExist(): Promise<boolean> {
+  const result = await execute(`SELECT COUNT(*) FROM professorDB`);
+  const resultAmount = Object.values(result[0])[0] as number;
+  return resultAmount > 0;
 }
 
 /**
@@ -162,6 +172,12 @@ export async function initializeMySQL(): Promise<void> {
       // New installations of mySQL don't have a database created, so it's created here to prevent errors when running mySQL commands
     }
   });
+
+  if (!(await checkDatabaseExist())) {
+    await readFile().then((result) => result.map((val) => addProfName(val)));
+  } else {
+    console.log('professorDB is already populated.');
+  }
 
   void execute(`
     CREATE TABLE IF NOT EXISTS rateMyProfessorDB (
