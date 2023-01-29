@@ -34,7 +34,7 @@ app.post('/professor', async (req, res) => {
       .send({ err: 'name of professor needs to be specified' });
   }
 
-  const name: string = req.body.name;
+  const name: string = req.body.name.toLowerCase();
   let data: ProfessorPage | null;
 
   // RMP name provided
