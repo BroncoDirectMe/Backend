@@ -43,7 +43,6 @@ async function profSearch(broncoDirectName: string): Promise<void> {
   return result;
 }
 
-
 /**
  * Adds a professor to the profDB table in SQL database
  * @param {string} broncoDirectName name to be added
