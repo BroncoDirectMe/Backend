@@ -34,6 +34,7 @@ async function execute(cmd: string, placeholder?: string[]): Promise<any> {
  * @return {Promise<void>} Array of JSON values.
  * Value can be extracted by awaiting function call within an async function
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function profSearch(broncoDirectName: string): Promise<void> {
   const result = await execute(
     'SELECT * FROM `rateMyProfessorDB` WHERE `broncoDirectName` = ?',
@@ -42,28 +43,6 @@ async function profSearch(broncoDirectName: string): Promise<void> {
   return result;
 }
 
-/**
- * Adds a professor to the SQL database
- * @param {Professor} professor See professor interface (/api/Professor.d.ts)
- */
-function addProf({
-  broncoDirectName,
-  rmpName,
-  rmpURL,
-  profRating,
-  profDifficulty,
-  takeClassAgain,
-}: Professor): void {
-  void execute('INSERT INTO rateMyProfessorDB VALUES (?, ?, ?, ?, ?, ?, ?)', [
-    '',
-    broncoDirectName,
-    rmpName,
-    rmpURL,
-    profRating.toFixed(2),
-    profDifficulty.toFixed(2),
-    takeClassAgain.toFixed(2),
-  ]);
-}
 
 /**
  * Adds a professor to the profDB table in SQL database
@@ -94,6 +73,7 @@ export async function checkProfName(
  * Updates existing professor in the SQL database
  * @param {Professor} newProfessor See professor interface (/api/Professor.d.ts)
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function updateProf({
   broncoDirectName,
   rmpName,
