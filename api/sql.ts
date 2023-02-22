@@ -194,7 +194,7 @@ export async function initializeMySQL(): Promise<void> {
 }
 
 
-export async function getProf(name:string):Promise<void>{
+export async function getProf(name:string):Promise<any>{
   const result = await execute(`
     SELECT professorID FROM professor WHERE broncoDirectName = ?`,
     [name]

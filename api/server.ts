@@ -5,7 +5,7 @@ import cors from 'cors';
 import express from 'express';
 import { ProfessorPage } from '../scraper/graphql/interface';
 import { getProfessorByName } from '../scraper/scraper';
-import { initializeMySQL,createUserID, getUserID, addVote, getProf} from './sql';
+import { initializeMySQL,createUserID, getUserID, addVote, getProf, getVote} from './sql';
 import { create } from 'ts-node';
 
 import {sign,verify,JwtPayload} from 'jsonwebtoken'
@@ -18,7 +18,8 @@ interface User{
   userID: number,
   email: string
 }
-interface RawUserVote{
+
+interface RawxUserVote{
   userID: number,
   professorName: string,
   token: string
@@ -64,14 +65,16 @@ app.post('/professor', async (req, res) => {
   // I'm using a single object, but Ideally this should be a nested object? this is the format that I'll just stick with
   // object input
   // {"name" : "professor"}
+  console.log("here")
   if (checkEmpty(req.body, res)) {
     return;
   }
   if (!('name' in req.body)) {
     return res
-      .status(400)
+      .status(400).send("missing name in body")
 
   }
+
 
   const name: string = req.body.name;
   let data: ProfessorPage | null;
@@ -113,9 +116,9 @@ app.post('/search', async (req, res) => {
 
 
 
-app.post('/vote', (req, res) => { // debug this
+app.post('/vote', async (req, res) => { // debug this
   // needs to have a vote, encrypted userID and professor name
-
+  console.log(req.body)
   
   if (checkEmpty(req.body, res)) {
     return;
@@ -123,21 +126,23 @@ app.post('/vote', (req, res) => { // debug this
   if (!('professor' in req.body)) {
     return res.status(400).send('Professor key is missing')
   }
-  if(!('vote' in req.body)){
+  if(!('voteType' in req.body)){
     return res.status(400).send('Vote key is missing')
   }
   if(!('token' in req.body)){
     return res.status(400).send('token key is missing')
   }
-  const profID = getProf(req.body.professor)
+  // let profID = await getProf(req.body.professor) as any[]
+  
+  // profID = profID[0].professorID
+  
   const token = req.body.token
   const userInfo = decrypt(token) as User
-  console.log(userInfo)
 
   
   // check if vote exists, if not create a new one, else if they are equal delete
-  
-  return res.status(400).send({profID});
+  // await getVote(u)
+  // return res.status(400).send({profID});
 });
 
 app.post('/login', validateEmail, async (req, res) => {
@@ -152,9 +157,7 @@ app.post('/login', validateEmail, async (req, res) => {
 // app.post('/create', async (req,res)=>{
   
 // })
-app.get('/test_signup', async (req,res)=>{
-  
-})
+
 // app.get('get_database',async (req,res)=>{
 // })
 app.listen(process.env.PORT ?? 3000);
