@@ -107,6 +107,21 @@ async function checkDatabaseExist(): Promise<boolean> {
   return resultAmount > 0;
 }
 
+// checks if there is an active SQL connection
+export async function checkSQLConnection(): Promise<boolean> {
+  // makes sure connection has a ping command
+  if (!connection?.ping) {
+    return false;
+  }
+
+  try {
+    connection.ping();
+    return true;
+  } catch (err) {
+    return false;
+  }
+}
+
 /**
  * Initializes mySQL in the backend by creating a connection to the mySQL server. See comments within the function for download instructions on mySQL by ctrl (windows) / option (mac) clicking the function name.
  */

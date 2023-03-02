@@ -1,13 +1,35 @@
 import { getProfessorSearch } from './../scraper/scraper';
 import cors from 'cors';
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import { ProfessorPage } from '../scraper/graphql/interface';
 import { getProfessorByName } from '../scraper/scraper';
-import { initializeMySQL, checkProfName } from './sql';
+import { initializeMySQL, checkProfName, checkSQLConnection } from './sql';
 
 const app = express();
 app.use(express.json());
 app.use(cors());
+
+// Middleware function to check if the connection to the MySQL server is up
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+const checkConnection = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  if (!(await checkSQLConnection())) {
+    console.log('MySQL server not connected. Starting server...');
+    try {
+      await initializeMySQL();
+      console.log('MySQL server started.');
+    } catch (err) {
+      console.error('Error starting MySQL server: ', err);
+      return res.status(500).send('Error starting MySQL server.');
+    }
+  }
+  next();
+};
+
+app.use(checkConnection);
 
 function checkEmpty(content: object, res: any): boolean {
   if (Object.keys(content).length === 0) {
