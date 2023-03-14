@@ -2,9 +2,12 @@ import { getProfessorSearch } from './../scraper/scraper';
 import cors from 'cors';
 import express, { Request, Response, NextFunction } from 'express';
 import { ProfessorPage } from '../scraper/graphql/interface';
+import { getProfessorByName } from '../scraper/scraper';
 import {
   addProf,
+  updateProf,
   profSearch,
+  checkExpiredProfData,
   checkProfName,
   initializeMySQL,
   checkSQLConnection,
@@ -44,8 +47,6 @@ function checkEmpty(content: object, res: any): boolean {
   return false;
 }
 
-// const cachedProfData: { [key: string]: ProfessorPage | null } = {};
-
 /* eslint-enable @typescript-eslint/naming-convention */
 app.post('/professor', async (req, res) => {
   // API returns single professor data or null if doesn't exist
@@ -69,17 +70,31 @@ app.post('/professor', async (req, res) => {
     // Check if prof data already exists
     const result = await profSearch(name);
     if (Object.keys(result).length === 0) {
+      /* No data found in db based on 'name' */
+      // Check if prof name actually exists in cpp
       if ((await checkProfName(name)).length > 0) {
         await addProf(name);
-        data = await profSearch(name);
+        data = await profSearch(name); // re-query data after adding info
         console.log(
           `[SUCCESS] Professor ${name} has been added to the database.`
         );
       } else {
         return res.status(400).send('professor not found in mapping');
       }
+    } else if (await checkExpiredProfData(name)) {
+      /* Data exists, but it's 3mo+ old */
+      const newData = await getProfessorByName(name);
+      await updateProf({
+        profName: name,
+        avgDifficulty: newData?.avgDifficulty ?? -1,
+        avgRating: newData?.avgRating ?? -1,
+        numRatings: newData?.numRatings ?? -1,
+        wouldTakeAgainPercent: newData?.wouldTakeAgainPercent ?? -1,
+      });
+      data = await profSearch(name); // re-query data after updating info
+      console.log(`[SUCCESS] Professor ${name} has been updated.`);
     } else {
-      // [TODO] Update logic to else if to check for timestamp difference (3mo+ update data)
+      /* Data exists and is younger than 3mo */
       data = result;
     }
   } catch (err) {

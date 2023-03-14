@@ -1,5 +1,5 @@
 import { createConnection } from 'mysql2';
-import { Professor } from './Professor';
+import { Professor, ProfessorUpdate } from './Professor';
 import { readFile } from '../scraper/professors/populate';
 import { getProfessorByName } from '../scraper/scraper';
 import 'dotenv/config';
@@ -33,7 +33,6 @@ async function execute(cmd: string, placeholder?: string[]): Promise<any> {
  * Adds a new professor entry into `rateMyProfessorDB` using a professor's full name
  * @param {Professor} newProfessor See professor interface (/api/Professor.d.ts)
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function addProf(broncoDirectName: string): Promise<void> {
   try {
     const data = await getProfessorByName(broncoDirectName.toLowerCase());
@@ -65,7 +64,6 @@ export async function addProf(broncoDirectName: string): Promise<void> {
  * Adds a new professor entry into `rateMyProfessorDB` using data from GraphQL
  * @param {Professor} newProfessor See professor interface (/api/Professor.d.ts)
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function addProfGraphQL({
   profName,
   firstName,
@@ -116,21 +114,21 @@ async function addProfGraphQL({
  * Updates existing professor data in the SQL database
  * @param {Professor} newProfessor See professor interface (/api/Professor.d.ts)
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-async function updateProf({
+export async function updateProf({
   profName,
   avgDifficulty,
   avgRating,
   numRatings,
   wouldTakeAgainPercent,
-}: Professor): Promise<void> {
+}: ProfessorUpdate): Promise<void> {
   try {
     void execute(
-      `UPDATE professorDB SET
+      `UPDATE rateMyProfessorDB SET
               avgDifficulty = ?,
               avgRating = ?,
               numRatings = ?,
               wouldTakeAgainPercent = ?,
+              timeAdded = CURRENT_TIMESTAMP
               WHERE profName = ?`,
       [
         avgDifficulty.toFixed(1),
@@ -146,12 +144,32 @@ async function updateProf({
 }
 
 /**
+ * Checks if a professor's data in the db is more than 3 months old.
+ * Current expiration date is 3 months, or 7884000 seconds.
+ *
+ * @param {string}  broncoDirectName BroncoDirect name.
+ * @return {Promise<boolean>} True if prof data is 3mo+ old, false otherwise.
+ */
+export async function checkExpiredProfData(
+  broncoDirectName: string
+): Promise<boolean> {
+  const name = broncoDirectName.toLowerCase();
+  const result = await execute(
+    'SELECT * FROM `rateMyProfessorDB` WHERE `profName` = ? AND TIMESTAMPDIFF(SECOND, `timeAdded`, NOW()) >= 7884000',
+    [name]
+  );
+  if (Object.keys(result).length === 0) {
+    return false;
+  }
+  return true;
+}
+
+/**
  * Finds a professor in the SQL Database given their BroncoDirect name.
  * @param {string}  broncoDirectName BroncoDirect name.
  * @return {Promise<Professor>} JSON of professor data.
  * Value can be extracted by awaiting function call within an async function
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function profSearch(broncoDirectName: string): Promise<Professor> {
   const result = await execute(
     'SELECT * FROM `rateMyProfessorDB` WHERE `profName` = ?',

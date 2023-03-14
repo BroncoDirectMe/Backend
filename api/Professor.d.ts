@@ -9,3 +9,11 @@ export interface Professor {
   id: string;
   legacyId: number;
 }
+
+export interface ProfessorUpdate {
+  profName: string;
+  avgDifficulty: number;
+  avgRating: number;
+  numRatings: number;
+  wouldTakeAgainPercent: number;
+}
