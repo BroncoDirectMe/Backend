@@ -9,7 +9,7 @@ let connection: any;
 /**
  * Internal use function to execute a single SQL command as prepared statements with error catching.
  * @param {string} SQLCommand Single quotation marks for one-line commands. Template string for multi-line commands.
- * @param {string[]} [placeholder] Optional parameter used for SQL commands that require function parameters
+ * @param {string[]} [placeholder] Optional parameter used for SQL commands that require function parameters.
  */
 async function execute(cmd: string, placeholder?: string[]): Promise<any> {
   const data = await new Promise((resolve) =>
@@ -29,9 +29,11 @@ async function execute(cmd: string, placeholder?: string[]): Promise<any> {
   return data;
 }
 
+/* --- rateMyProfessorDB FUNCTIONS --- */
+
 /**
- * Adds a new professor entry into `rateMyProfessorDB` using a professor's full name
- * @param {Professor} newProfessor See professor interface (/api/Professor.d.ts)
+ * Adds a new professor entry into `rateMyProfessorDB` using a professor's full name.
+ * @param {Professor} newProfessor See professor interface (/api/Professor.d.ts).
  */
 export async function addProf(broncoDirectName: string): Promise<void> {
   try {
@@ -59,10 +61,10 @@ export async function addProf(broncoDirectName: string): Promise<void> {
 }
 
 /**
- * Private function - use `addProf(broncoDirectName)` to query data
+ * Private function - use `addProf(broncoDirectName)` to query data.
  *
- * Adds a new professor entry into `rateMyProfessorDB` using data from GraphQL
- * @param {Professor} newProfessor See professor interface (/api/Professor.d.ts)
+ * Adds a new professor entry into `rateMyProfessorDB` using data from GraphQL.
+ * @param {Professor} newProfessor See professor interface (/api/Professor.d.ts).
  */
 async function addProfGraphQL({
   profName,
@@ -78,7 +80,7 @@ async function addProfGraphQL({
   try {
     // Check if data already exists in db
     const result = await profSearch(profName);
-    if (Object.keys(result).length === 0) {
+    if (result && Object.keys(result).length === 0) {
       void execute(
         `INSERT INTO rateMyProfessorDB (
         profName, 
@@ -111,8 +113,8 @@ async function addProfGraphQL({
 }
 
 /**
- * Updates existing professor data in the SQL database
- * @param {Professor} newProfessor See professor interface (/api/Professor.d.ts)
+ * Updates existing professor data in the SQL database.
+ * @param {Professor} newProfessor See professor interface (/api/Professor.d.ts).
  */
 export async function updateProf({
   profName,
@@ -168,7 +170,7 @@ export async function checkExpiredProfData(
  * Finds a professor in the SQL Database given their BroncoDirect name.
  * @param {string}  broncoDirectName BroncoDirect name.
  * @return {Promise<Professor>} JSON of professor data.
- * Value can be extracted by awaiting function call within an async function
+ * Value can be extracted by awaiting function call within an async function.
  */
 export async function profSearch(broncoDirectName: string): Promise<Professor> {
   const [result] = await execute(
@@ -181,8 +183,8 @@ export async function profSearch(broncoDirectName: string): Promise<Professor> {
 /* --- professorDB FUNCTIONS --- */
 
 /**
- * Adds a professor to the professorDB table in SQL database
- * @param {string} broncoDirectName name to be added
+ * Adds a professor to the professorDB table in SQL database.
+ * @param {string} broncoDirectName name to be added.
  */
 export function addProfName(broncoDirectName: string): void {
   void execute('INSERT INTO professorDB (broncoDirectName) VALUES (?)', [
@@ -191,9 +193,9 @@ export function addProfName(broncoDirectName: string): void {
 }
 
 /**
- * Checks if a professor's name exists in the `professorDB` database (meaning they are a valid professor)
- * @param {string} broncoDirectName name to be checked
- * @return {Promise<object[]>} Array of JSON values
+ * Checks if a professor's name exists in the `professorDB` database (meaning they are a valid professor).
+ * @param {string} broncoDirectName name to be checked.
+ * @return {Promise<object[]>} Array of JSON values.
  */
 export async function checkProfName(
   broncoDirectName: string
@@ -205,7 +207,10 @@ export async function checkProfName(
   return result;
 }
 
-// used to populate professorDB if doesn't already exist
+/**
+ * Checks if `professorDB` already has prof names in it.
+ * @return {Promise<boolean>} True if db has data in it, false otherwise.
+ */
 async function checkDatabaseExist(): Promise<boolean> {
   const result = await execute(`SELECT COUNT(*) FROM professorDB`);
   const resultAmount = Object.values(result[0])[0] as number;
@@ -331,10 +336,10 @@ export async function initializeMySQL(): Promise<void> {
   // ];
 
   // console.log('\n[BRONCODIRECT] Testing Professor Functions.\n-----\n');
-  // // console.log('[BRONCODIRECT] Add Poppy Gloria to table');
-  // // await addProfGraphQL(sampleProf);
-  // // const result = await profSearch('Poppy Gloria');
-  // // console.log(result);
+  // console.log('[BRONCODIRECT] Add Poppy Gloria to table');
+  // await addProfGraphQL(sampleProf);
+  // const result = await profSearch('Poppy Gloria');
+  // console.log(result);
 
   // await addProf(sampleProfArray[0]);
   // const result = await profSearch('Thanh Nguyen');
