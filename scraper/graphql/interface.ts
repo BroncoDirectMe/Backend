@@ -14,5 +14,5 @@ export interface ProfessorPage {
   numRatings: number;
   wouldTakeAgainPercent: number;
   legacyId: number;
-  id: number;
+  id: string;
 }
