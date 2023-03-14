@@ -29,6 +29,39 @@ async function execute(cmd: string, placeholder?: string[]): Promise<any> {
 }
 
 /**
+ * Updates existing professor data in the SQL database
+ * @param {Professor} newProfessor See professor interface (/api/Professor.d.ts)
+ */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+async function updateProf({
+  profName,
+  avgDifficulty,
+  avgRating,
+  numRatings,
+  wouldTakeAgainPercent,
+}: Professor): Promise<void> {
+  try {
+    void execute(
+      `UPDATE professorDB SET
+              avgDifficulty = ?,
+              avgRating = ?,
+              numRatings = ?,
+              wouldTakeAgainPercent = ?,
+              WHERE profName = ?`,
+      [
+        avgDifficulty.toFixed(1),
+        avgRating.toFixed(1),
+        numRatings.toString(),
+        wouldTakeAgainPercent.toFixed(2),
+        profName,
+      ]
+    );
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+/**
  * Finds a professor in the SQL Database given their BroncoDirect name.
  * @param {string}  broncoDirectName BroncoDirect name
  * @return {Promise<void>} Array of JSON values.
@@ -43,8 +76,10 @@ async function profSearch(broncoDirectName: string): Promise<void> {
   return result;
 }
 
+/* --- professorDB FUNCTIONS --- */
+
 /**
- * Adds a professor to the profDB table in SQL database
+ * Adds a professor to the professorDB table in SQL database
  * @param {string} broncoDirectName name to be added
  */
 export function addProfName(broncoDirectName: string): void {
@@ -54,7 +89,7 @@ export function addProfName(broncoDirectName: string): void {
 }
 
 /**
- * Checks if a professor exists in the database (meaning they are a valid professor)
+ * Checks if a professor's name exists in the `professorDB` database (meaning they are a valid professor)
  * @param {string} broncoDirectName name to be checked
  * @return {Promise<object[]>} Array of JSON values
  */
@@ -68,44 +103,14 @@ export async function checkProfName(
   return result;
 }
 
-/**
- * Updates existing professor in the SQL database
- * @param {Professor} newProfessor See professor interface (/api/Professor.d.ts)
- */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-async function updateProf({
-  broncoDirectName,
-  rmpName,
-  rmpURL,
-  profRating,
-  profDifficulty,
-  takeClassAgain,
-}: Professor): Promise<void> {
-  void execute(
-    `UPDATE professorDB SET
-  rmpName = ?,
-  rmpURL = ?,
-  profRating = ?,
-  profDifficulty = ?,
-  takeClassAgain = ?
-  WHERE broncoDirectName = ?`,
-    [
-      rmpName,
-      rmpURL,
-      profRating.toFixed(2),
-      profDifficulty.toFixed(2),
-      takeClassAgain.toFixed(2),
-      broncoDirectName,
-    ]
-  );
-}
-
 // used to populate professorDB if doesn't already exist
 async function checkDatabaseExist(): Promise<boolean> {
   const result = await execute(`SELECT COUNT(*) FROM professorDB`);
   const resultAmount = Object.values(result[0])[0] as number;
   return resultAmount > 0;
 }
+
+/* --- MySQL FUNCTIONS --- */
 
 // checks if there is an active SQL connection
 export async function checkSQLConnection(): Promise<boolean> {
