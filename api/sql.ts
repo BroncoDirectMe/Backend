@@ -79,7 +79,7 @@ async function addProfGraphQL({
   try {
     // Check if data already exists in db
     const result = await profSearch(profName);
-    if (result && Object.keys(result).length === 0) {
+    if (!result || Object.keys(result).length === 0) {
       void execute(
         `INSERT INTO rateMyProfessorDB (
         profName, 

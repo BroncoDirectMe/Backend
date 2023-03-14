@@ -69,12 +69,13 @@ app.post('/professor', async (req, res) => {
   try {
     // Check if prof data already exists
     const result = await profSearch(name);
-    if (result && Object.keys(result).length === 0) {
+    if (!result || Object.keys(result).length === 0) {
       /* No data found in db based on 'name' */
       // Check if prof name actually exists in cpp
       if ((await checkProfName(name)).length > 0) {
         await addProf(name);
         data = await profSearch(name); // re-query data after adding info
+        console.log(data);
         console.log(
           `[SUCCESS] Professor ${name} has been added to the database.`
         );
