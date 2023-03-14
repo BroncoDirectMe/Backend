@@ -34,10 +34,10 @@ async function execute(cmd: string, placeholder?: string[]): Promise<any> {
  * @param {Professor} newProfessor See professor interface (/api/Professor.d.ts)
  */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-async function addProf(broncoDirectName: string): Promise<void> {
+export async function addProf(broncoDirectName: string): Promise<void> {
   try {
     const data = await getProfessorByName(broncoDirectName.toLowerCase());
-    if (data) {
+    if (data && Object.keys(data).length > 0) {
       await addProfGraphQL({
         profName: broncoDirectName.toLowerCase(),
         firstName: data?.firstName,
@@ -50,7 +50,9 @@ async function addProf(broncoDirectName: string): Promise<void> {
         legacyId: data?.legacyId,
       });
     } else {
-      console.error(`Professor ${broncoDirectName} not found.`);
+      console.error(
+        `Professor ${broncoDirectName} not found in GraphQL query.`
+      );
     }
   } catch (err) {
     console.error(err);
@@ -150,7 +152,7 @@ async function updateProf({
  * Value can be extracted by awaiting function call within an async function
  */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-async function profSearch(broncoDirectName: string): Promise<Professor> {
+export async function profSearch(broncoDirectName: string): Promise<Professor> {
   const result = await execute(
     'SELECT * FROM `rateMyProfessorDB` WHERE `profName` = ?',
     [broncoDirectName]
@@ -319,6 +321,6 @@ export async function initializeMySQL(): Promise<void> {
   // await addProf(sampleProfArray[0]);
   // const result = await profSearch('Thanh Nguyen');
   // console.log(result);
-  const result = await profSearch('Ben Steichen');
-  console.log(result);
+  // const result = await profSearch('Ben Steichen');
+  // console.log(result);
 }

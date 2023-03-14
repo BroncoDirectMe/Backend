@@ -2,8 +2,13 @@ import { getProfessorSearch } from './../scraper/scraper';
 import cors from 'cors';
 import express, { Request, Response, NextFunction } from 'express';
 import { ProfessorPage } from '../scraper/graphql/interface';
-import { getProfessorByName } from '../scraper/scraper';
-import { initializeMySQL, checkProfName, checkSQLConnection } from './sql';
+import {
+  addProf,
+  profSearch,
+  checkProfName,
+  initializeMySQL,
+  checkSQLConnection,
+} from './sql';
 
 const app = express();
 app.use(express.json());
@@ -39,7 +44,7 @@ function checkEmpty(content: object, res: any): boolean {
   return false;
 }
 
-const cachedProfData: { [key: string]: ProfessorPage | null } = {};
+// const cachedProfData: { [key: string]: ProfessorPage | null } = {};
 
 /* eslint-enable @typescript-eslint/naming-convention */
 app.post('/professor', async (req, res) => {
@@ -56,28 +61,30 @@ app.post('/professor', async (req, res) => {
       .send({ err: 'name of professor needs to be specified' });
   }
 
-  const name: string = req.body.name;
-  let data: ProfessorPage | null;
+  const name: string = req.body.name.toLowerCase();
+  let data: ProfessorPage | null = null;
 
   // RMP name provided
-  if (!(name.toLowerCase() in cachedProfData)) {
-    const result = await checkProfName(name); // row data of mysql, will return the name if exists
-    if (result.length > 0) {
-      cachedProfData[name.toLowerCase()] = await getProfessorByName(name); // maps data for every new professor
-      console.log('NEW PROFESSOR ADDED, ', name);
+  try {
+    // Check if prof data already exists
+    const result = await profSearch(name);
+    if (Object.keys(result).length === 0) {
+      if ((await checkProfName(name)).length > 0) {
+        await addProf(name);
+        data = await profSearch(name);
+        console.log(
+          `[SUCCESS] Professor ${name} has been added to the database.`
+        );
+      } else {
+        return res.status(400).send('professor not found in mapping');
+      }
     } else {
-      return res.status(400).send('professor not found in mapping');
+      // [TODO] Update logic to else if to check for timestamp difference (3mo+ update data)
+      data = result;
     }
+  } catch (err) {
+    console.error(err);
   }
-
-  // eslint-disable-next-line prefer-const
-  data = cachedProfData[name.toLowerCase()];
-
-  if (!data) {
-    res.status(400).send('name of professor not in RMP');
-    return;
-  }
-
   res.send(data);
 });
 
