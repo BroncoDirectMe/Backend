@@ -171,7 +171,7 @@ export async function checkExpiredProfData(
  * Value can be extracted by awaiting function call within an async function
  */
 export async function profSearch(broncoDirectName: string): Promise<Professor> {
-  const result = await execute(
+  const [result] = await execute(
     'SELECT * FROM `rateMyProfessorDB` WHERE `profName` = ?',
     [broncoDirectName]
   );
