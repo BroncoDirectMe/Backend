@@ -12,6 +12,7 @@ export interface ProfessorPage {
   avgDifficulty: number;
   avgRating: number;
   numRatings: number;
+  wouldTakeAgainPercent: number;
   legacyId: number;
   id: number;
 }
