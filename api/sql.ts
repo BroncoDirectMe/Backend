@@ -1,7 +1,6 @@
 import { createConnection } from 'mysql2';
 import { Professor, ProfessorUpdate } from './Professor';
-import { readFile } from '../scraper/professors/populate';
-import { getProfessorByName } from '../scraper/scraper';
+import { getProfessorByName, getAllProfessor } from '../scraper/scraper';
 import 'dotenv/config';
 
 let connection: any;
@@ -186,9 +185,10 @@ export async function profSearch(broncoDirectName: string): Promise<Professor> {
  * Adds a professor to the professorDB table in SQL database.
  * @param {string} broncoDirectName name to be added.
  */
-export function addProfName(broncoDirectName: string): void {
+export function addProfName(bdFirst: string, bdLast: string): void {
+  const fullName = bdFirst + ' ' + bdLast;
   void execute('INSERT INTO professorDB (broncoDirectName) VALUES (?)', [
-    broncoDirectName,
+    fullName,
   ]);
 }
 
@@ -211,7 +211,7 @@ export async function checkProfName(
  * Checks if `professorDB` already has prof names in it.
  * @return {Promise<boolean>} True if db has data in it, false otherwise.
  */
-async function checkDatabaseExist(): Promise<boolean> {
+async function checkProfDatabaseExist(): Promise<boolean> {
   const result = await execute(`SELECT COUNT(*) FROM professorDB`);
   const resultAmount = Object.values(result[0])[0] as number;
   return resultAmount > 0;
@@ -279,12 +279,6 @@ export async function initializeMySQL(): Promise<void> {
     }
   });
 
-  if (!(await checkDatabaseExist())) {
-    await readFile().then((result) => result.map((val) => addProfName(val)));
-  } else {
-    console.log('professorDB is already populated.');
-  }
-
   void execute(`
     CREATE TABLE IF NOT EXISTS rateMyProfessorDB (
       profID int NOT NULL PRIMARY KEY AUTO_INCREMENT,
@@ -315,6 +309,19 @@ export async function initializeMySQL(): Promise<void> {
     userID int NOT NULL PRIMARY KEY AUTO_INCREMENT,
     userEmail varchar(255)
   )`);
+
+  // If professorDB is empty, call graphQL `getAllProfessor` function to get array of all rmp professors (cpp)
+  // Professors not currently in RMP may not be included in this scraping
+  if (!(await checkProfDatabaseExist())) {
+    await getAllProfessor().then((result) =>
+      result.forEach((val, index) => {
+        addProfName(val.firstName, val.lastName);
+        console.log(`Added ${val.firstName + ' ' + val.lastName} - `, index);
+      })
+    );
+  } else {
+    console.log(`professorDB is already populated.`);
+  }
 
   // const sampleProf: Professor = {
   //   profName: 'Poppy Gloria',
