@@ -1,8 +1,11 @@
 export interface Professor {
-  broncoDirectName: string;
-  rmpName: string;
-  rmpURL: string;
-  profRating: number;
-  profDifficulty: number;
-  takeClassAgain: number;
+  profName: string;
+  firstName: string;
+  lastName: string;
+  avgDifficulty: number;
+  avgRating: number;
+  numRatings: number;
+  wouldTakeAgainPercent: number;
+  id: string;
+  legacyId: number;
 }

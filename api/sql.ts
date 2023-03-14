@@ -176,14 +176,19 @@ export async function initializeMySQL(): Promise<void> {
   void execute(`
     CREATE TABLE IF NOT EXISTS rateMyProfessorDB (
       profID int NOT NULL PRIMARY KEY AUTO_INCREMENT,
-      broncoDirectName varchar(255),
-      rmpName varchar(255),
-      rmpURL LONGTEXT,
-      profRating varchar(255),
-      profDifficulty varchar(255),
-      takeClassAgain varchar(255)
+      profName varchar(255),
+      firstName varchar(255),
+      lastName varchar(255),
+      avgDifficulty float(2, 1),
+      avgRating float(2, 1),
+      numRatings int,
+      wouldTakeAgainPercent float(7, 4),
+      timeAdded timestamp DEFAULT CURRENT_TIMESTAMP,
+      id varchar(255),
+      legacyId int
     )
   `);
+
   void execute(`CREATE TABLE IF NOT EXISTS professorDB (
     profID int NOT NULL PRIMARY KEY AUTO_INCREMENT,
     broncoDirectName varchar(255)
