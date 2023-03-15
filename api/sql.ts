@@ -103,6 +103,9 @@ async function addProfGraphQL({
           legacyId.toString(),
         ]
       );
+      console.log(
+        `[SUCCESS] Professor ${profName} has been added to the database.`
+      );
     } else {
       console.error(`Professor ${profName} already exists in the database.`);
     }
@@ -139,6 +142,7 @@ export async function updateProf({
         profName,
       ]
     );
+    console.log(`[SUCCESS] Professor ${profName} has been updated.`);
   } catch (err) {
     console.error(err);
   }
@@ -176,9 +180,11 @@ export async function profSearch(broncoDirectName: string): Promise<Professor> {
     'SELECT * FROM `rateMyProfessorDB` WHERE `profName` = ?',
     [broncoDirectName]
   );
-  result.avgDifficulty = parseFloat(result.avgDifficulty);
-  result.avgRating = parseFloat(result.avgRating);
-  result.wouldTakeAgainPercent = parseFloat(result.wouldTakeAgainPercent);
+  if (result) {
+    result.avgDifficulty = parseFloat(result.avgDifficulty);
+    result.avgRating = parseFloat(result.avgRating);
+    result.wouldTakeAgainPercent = parseFloat(result.wouldTakeAgainPercent);
+  }
   return result;
 }
 

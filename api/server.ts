@@ -74,9 +74,6 @@ app.post('/professor', async (req, res) => {
       if ((await checkProfName(name)).length > 0) {
         await addProf(name);
         data = await profSearch(name); // re-query data after adding info
-        console.log(
-          `[SUCCESS] Professor ${name} has been added to the database.`
-        );
       } else {
         return res.status(400).send('professor not found in mapping');
       }
@@ -91,7 +88,6 @@ app.post('/professor', async (req, res) => {
         wouldTakeAgainPercent: newData?.wouldTakeAgainPercent ?? -1,
       });
       data = await profSearch(name); // re-query data after updating info
-      console.log(`[SUCCESS] Professor ${name} has been updated.`);
     } else {
       /* Data exists and is younger than 3mo */
       data = result;
