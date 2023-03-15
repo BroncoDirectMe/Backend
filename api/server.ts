@@ -28,7 +28,6 @@ const checkConnection = async (
     console.log('MySQL server not connected. Starting server...');
     try {
       await initializeMySQL();
-      console.log('MySQL server started.');
     } catch (err) {
       console.error('Error starting MySQL server: ', err);
       return res.status(500).send('Error starting MySQL server.');
@@ -75,7 +74,6 @@ app.post('/professor', async (req, res) => {
       if ((await checkProfName(name)).length > 0) {
         await addProf(name);
         data = await profSearch(name); // re-query data after adding info
-        console.log(data);
         console.log(
           `[SUCCESS] Professor ${name} has been added to the database.`
         );

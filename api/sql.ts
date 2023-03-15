@@ -319,9 +319,9 @@ export async function initializeMySQL(): Promise<void> {
         console.log(`Added ${val.firstName + ' ' + val.lastName} - `, index);
       })
     );
-  } else {
-    console.log(`professorDB is already populated.`);
   }
+
+  console.log('MySQL server successfully started!');
 
   // const sampleProf: Professor = {
   //   profName: 'Poppy Gloria',
