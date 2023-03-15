@@ -176,6 +176,9 @@ export async function profSearch(broncoDirectName: string): Promise<Professor> {
     'SELECT * FROM `rateMyProfessorDB` WHERE `profName` = ?',
     [broncoDirectName]
   );
+  result.avgDifficulty = parseFloat(result.avgDifficulty);
+  result.avgRating = parseFloat(result.avgRating);
+  result.wouldTakeAgainPercent = parseFloat(result.wouldTakeAgainPercent);
   return result;
 }
 
