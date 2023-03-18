@@ -163,10 +163,7 @@ export async function checkExpiredProfData(
     'SELECT * FROM `rateMyProfessorDB` WHERE `profName` = ? AND TIMESTAMPDIFF(SECOND, `timeAdded`, NOW()) >= 7884000',
     [name]
   );
-  if (Object.keys(result).length === 0) {
-    return false;
-  }
-  return true;
+  return Object.keys(result).length !== 0;
 }
 
 /**
