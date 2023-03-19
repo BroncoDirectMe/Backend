@@ -1,6 +1,6 @@
 import { createConnection } from 'mysql2';
-import { Professor } from './Professor';
-import { readFile } from '../scraper/professors/populate';
+import { Professor, ProfessorUpdate } from './Professor';
+import { getProfessorByName, getAllProfessor } from '../scraper/scraper';
 import 'dotenv/config';
 
 let connection: any;
@@ -8,7 +8,7 @@ let connection: any;
 /**
  * Internal use function to execute a single SQL command as prepared statements with error catching.
  * @param {string} SQLCommand Single quotation marks for one-line commands. Template string for multi-line commands.
- * @param {string[]} [placeholder] Optional parameter used for SQL commands that require function parameters
+ * @param {string[]} [placeholder] Optional parameter used for SQL commands that require function parameters.
  */
 async function execute(cmd: string, placeholder?: string[]): Promise<any> {
   const data = await new Promise((resolve) =>
@@ -28,35 +28,180 @@ async function execute(cmd: string, placeholder?: string[]): Promise<any> {
   return data;
 }
 
+/* --- rateMyProfessorDB FUNCTIONS --- */
+
 /**
- * Finds a professor in the SQL Database given their BroncoDirect name.
- * @param {string}  broncoDirectName BroncoDirect name
- * @return {Promise<void>} Array of JSON values.
- * Value can be extracted by awaiting function call within an async function
+ * Adds a new professor entry into `rateMyProfessorDB` using a professor's full name.
+ * @param {Professor} newProfessor See professor interface (/api/Professor.d.ts).
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-async function profSearch(broncoDirectName: string): Promise<void> {
-  const result = await execute(
-    'SELECT * FROM `rateMyProfessorDB` WHERE `broncoDirectName` = ?',
-    [broncoDirectName]
-  );
-  return result;
+export async function addProf(broncoDirectName: string): Promise<void> {
+  try {
+    const data = await getProfessorByName(broncoDirectName.toLowerCase());
+    if (data && Object.keys(data).length > 0) {
+      await addProfGraphQL({
+        profName: broncoDirectName.toLowerCase(),
+        firstName: data?.firstName,
+        lastName: data?.lastName,
+        avgDifficulty: data?.avgDifficulty,
+        avgRating: data?.avgRating,
+        numRatings: data?.numRatings,
+        wouldTakeAgainPercent: data?.wouldTakeAgainPercent,
+        id: data?.id,
+        legacyId: data?.legacyId,
+      });
+    } else {
+      console.error(
+        `Professor ${broncoDirectName} not found in GraphQL query.`
+      );
+    }
+  } catch (err) {
+    console.error(err);
+  }
 }
 
 /**
- * Adds a professor to the profDB table in SQL database
- * @param {string} broncoDirectName name to be added
+ * Private function - use `addProf(broncoDirectName)` to query data.
+ *
+ * Adds a new professor entry into `rateMyProfessorDB` using data from GraphQL.
+ * @param {Professor} newProfessor See professor interface (/api/Professor.d.ts).
  */
-export function addProfName(broncoDirectName: string): void {
+async function addProfGraphQL({
+  profName,
+  firstName,
+  lastName,
+  avgDifficulty,
+  avgRating,
+  numRatings,
+  wouldTakeAgainPercent,
+  id,
+  legacyId,
+}: Professor): Promise<void> {
+  try {
+    // Check if data already exists in db
+    const result = await profSearch(profName);
+    if (!result || Object.keys(result).length === 0) {
+      void execute(
+        `INSERT INTO rateMyProfessorDB (
+        profName, 
+        firstName, 
+        lastName, 
+        avgDifficulty, 
+        avgRating, 
+        numRatings, 
+        wouldTakeAgainPercent,
+        id,
+        legacyId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          profName.toLowerCase(),
+          firstName,
+          lastName,
+          avgDifficulty.toFixed(1),
+          avgRating.toFixed(1),
+          numRatings.toString(),
+          wouldTakeAgainPercent.toFixed(2),
+          id,
+          legacyId.toString(),
+        ]
+      );
+      console.log(
+        `[SUCCESS] Professor ${profName} has been added to the database.`
+      );
+    } else {
+      console.error(`Professor ${profName} already exists in the database.`);
+    }
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+/**
+ * Updates existing professor data in the SQL database.
+ * @param {Professor} newProfessor See professor interface (/api/Professor.d.ts).
+ */
+export async function updateProf({
+  profName,
+  avgDifficulty,
+  avgRating,
+  numRatings,
+  wouldTakeAgainPercent,
+}: ProfessorUpdate): Promise<void> {
+  try {
+    void execute(
+      `UPDATE rateMyProfessorDB SET
+              avgDifficulty = ?,
+              avgRating = ?,
+              numRatings = ?,
+              wouldTakeAgainPercent = ?,
+              timeAdded = CURRENT_TIMESTAMP
+              WHERE profName = ?`,
+      [
+        avgDifficulty.toFixed(1),
+        avgRating.toFixed(1),
+        numRatings.toString(),
+        wouldTakeAgainPercent.toFixed(2),
+        profName,
+      ]
+    );
+    console.log(`[SUCCESS] Professor ${profName} has been updated.`);
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+/**
+ * Checks if a professor's data in the db is more than 3 months old.
+ * Current expiration date is 3 months, or 7884000 seconds.
+ *
+ * @param {string}  broncoDirectName BroncoDirect name.
+ * @return {Promise<boolean>} True if prof data is 3mo+ old, false otherwise.
+ */
+export async function checkExpiredProfData(
+  broncoDirectName: string
+): Promise<boolean> {
+  const name = broncoDirectName.toLowerCase();
+  const result = await execute(
+    'SELECT * FROM `rateMyProfessorDB` WHERE `profName` = ? AND TIMESTAMPDIFF(SECOND, `timeAdded`, NOW()) >= 7884000',
+    [name]
+  );
+  return Object.keys(result).length !== 0;
+}
+
+/**
+ * Finds a professor in the SQL Database given their BroncoDirect name.
+ * @param {string}  broncoDirectName BroncoDirect name.
+ * @return {Promise<Professor>} JSON of professor data.
+ * Value can be extracted by awaiting function call within an async function.
+ */
+export async function profSearch(broncoDirectName: string): Promise<Professor> {
+  const [result] = await execute(
+    'SELECT * FROM `rateMyProfessorDB` WHERE `profName` = ?',
+    [broncoDirectName]
+  );
+  if (result) {
+    result.avgDifficulty = parseFloat(result.avgDifficulty);
+    result.avgRating = parseFloat(result.avgRating);
+    result.wouldTakeAgainPercent = parseFloat(result.wouldTakeAgainPercent);
+  }
+  return result;
+}
+
+/* --- professorDB FUNCTIONS --- */
+
+/**
+ * Adds a professor to the professorDB table in SQL database.
+ * @param {string} broncoDirectName name to be added.
+ */
+export function addProfName(bdFirst: string, bdLast: string): void {
+  const fullName = bdFirst + ' ' + bdLast;
   void execute('INSERT INTO professorDB (broncoDirectName) VALUES (?)', [
-    broncoDirectName,
+    fullName,
   ]);
 }
 
 /**
- * Checks if a professor exists in the database (meaning they are a valid professor)
- * @param {string} broncoDirectName name to be checked
- * @return {Promise<object[]>} Array of JSON values
+ * Checks if a professor's name exists in the `professorDB` database (meaning they are a valid professor).
+ * @param {string} broncoDirectName name to be checked.
+ * @return {Promise<object[]>} Array of JSON values.
  */
 export async function checkProfName(
   broncoDirectName: string
@@ -69,43 +214,16 @@ export async function checkProfName(
 }
 
 /**
- * Updates existing professor in the SQL database
- * @param {Professor} newProfessor See professor interface (/api/Professor.d.ts)
+ * Checks if `professorDB` already has prof names in it.
+ * @return {Promise<boolean>} True if db has data in it, false otherwise.
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-async function updateProf({
-  broncoDirectName,
-  rmpName,
-  rmpURL,
-  profRating,
-  profDifficulty,
-  takeClassAgain,
-}: Professor): Promise<void> {
-  void execute(
-    `UPDATE professorDB SET
-  rmpName = ?,
-  rmpURL = ?,
-  profRating = ?,
-  profDifficulty = ?,
-  takeClassAgain = ?
-  WHERE broncoDirectName = ?`,
-    [
-      rmpName,
-      rmpURL,
-      profRating.toFixed(2),
-      profDifficulty.toFixed(2),
-      takeClassAgain.toFixed(2),
-      broncoDirectName,
-    ]
-  );
-}
-
-// used to populate professorDB if doesn't already exist
-async function checkDatabaseExist(): Promise<boolean> {
+async function checkProfDatabaseExist(): Promise<boolean> {
   const result = await execute(`SELECT COUNT(*) FROM professorDB`);
   const resultAmount = Object.values(result[0])[0] as number;
   return resultAmount > 0;
 }
+
+/* --- MySQL FUNCTIONS --- */
 
 // checks if there is an active SQL connection
 export async function checkSQLConnection(): Promise<boolean> {
@@ -167,23 +285,22 @@ export async function initializeMySQL(): Promise<void> {
     }
   });
 
-  if (!(await checkDatabaseExist())) {
-    await readFile().then((result) => result.map((val) => addProfName(val)));
-  } else {
-    console.log('professorDB is already populated.');
-  }
-
   void execute(`
     CREATE TABLE IF NOT EXISTS rateMyProfessorDB (
       profID int NOT NULL PRIMARY KEY AUTO_INCREMENT,
-      broncoDirectName varchar(255),
-      rmpName varchar(255),
-      rmpURL LONGTEXT,
-      profRating varchar(255),
-      profDifficulty varchar(255),
-      takeClassAgain varchar(255)
+      profName varchar(255),
+      firstName varchar(255),
+      lastName varchar(255),
+      avgDifficulty decimal(2, 1),
+      avgRating decimal(2, 1),
+      numRatings int,
+      wouldTakeAgainPercent decimal(5, 2),
+      timeAdded timestamp DEFAULT CURRENT_TIMESTAMP,
+      id varchar(255),
+      legacyId int
     )
   `);
+
   void execute(`CREATE TABLE IF NOT EXISTS professorDB (
     profID int NOT NULL PRIMARY KEY AUTO_INCREMENT,
     broncoDirectName varchar(255)
@@ -199,17 +316,47 @@ export async function initializeMySQL(): Promise<void> {
     userEmail varchar(255)
   )`);
 
+  // If professorDB is empty, call graphQL `getAllProfessor` function to get array of all rmp professors (cpp)
+  // Professors not currently in RMP may not be included in this scraping
+  if (!(await checkProfDatabaseExist())) {
+    await getAllProfessor().then((result) =>
+      result.forEach((val, index) => {
+        addProfName(val.firstName, val.lastName);
+        console.log(`Added ${val.firstName + ' ' + val.lastName} - `, index);
+      })
+    );
+  }
+
+  console.log('MySQL server successfully started!');
+
   // const sampleProf: Professor = {
-  //   broncoDirectName: 'Poppy Gloria',
-  //   rmpName: 'Poppy Gloria',
-  //   rmpURL: 'ratemyprofessor.com/PoppyGloria',
-  //   profRating: 10.0,
-  //   profDifficulty: 2.1,
-  //   takeClassAgain: 1.0,
+  //   profName: 'Poppy Gloria',
+  //   firstName: 'Poppy',
+  //   lastName: 'Gloria',
+  //   avgDifficulty: 4.2,
+  //   avgRating: 3.4,
+  //   numRatings: 12,
+  //   wouldTakeAgainPercent: 85.545,
+  //   id: 'abc123',
+  //   legacyId: 123456,
   // };
 
-  // console.log('yeet');
-  // addProf(sampleProf);
+  // const sampleProfArray: string[] = [
+  //   'Thanh Nguyen',
+  //   'Ben Steichen',
+  //   'Steven Camacho',
+  //   'Li Ge',
+  // ];
+
+  // console.log('\n[BRONCODIRECT] Testing Professor Functions.\n-----\n');
+  // console.log('[BRONCODIRECT] Add Poppy Gloria to table');
+  // await addProfGraphQL(sampleProf);
   // const result = await profSearch('Poppy Gloria');
+  // console.log(result);
+
+  // await addProf(sampleProfArray[0]);
+  // const result = await profSearch('Thanh Nguyen');
+  // console.log(result);
+  // const result = await profSearch('Ben Steichen');
   // console.log(result);
 }

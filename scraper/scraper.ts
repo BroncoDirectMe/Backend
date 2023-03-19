@@ -69,6 +69,11 @@ export const getProfessorByName = async (
     // returns promise object of the professors data
     const professor = await getProfessorData(professorId);
     return professor;
+  } else if (getProfessorResults.length > 1) {
+    /* NOTE: Querying professors may result in multiple of the same one - We handle this by taking the 1st professor data rather than all */
+    /* This is a TEMPORARY SOLUTION -- in the future, we should handle this by creating several different rating components */
+    const professor = await getProfessorData(getProfessorResults[0].id);
+    return professor;
   }
   return null;
 };

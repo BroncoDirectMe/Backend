@@ -3,7 +3,15 @@ import cors from 'cors';
 import express, { Request, Response, NextFunction } from 'express';
 import { ProfessorPage } from '../scraper/graphql/interface';
 import { getProfessorByName } from '../scraper/scraper';
-import { initializeMySQL, checkProfName, checkSQLConnection } from './sql';
+import {
+  addProf,
+  updateProf,
+  profSearch,
+  checkExpiredProfData,
+  checkProfName,
+  initializeMySQL,
+  checkSQLConnection,
+} from './sql';
 
 const app = express();
 app.use(express.json());
@@ -20,7 +28,6 @@ const checkConnection = async (
     console.log('MySQL server not connected. Starting server...');
     try {
       await initializeMySQL();
-      console.log('MySQL server started.');
     } catch (err) {
       console.error('Error starting MySQL server: ', err);
       return res.status(500).send('Error starting MySQL server.');
@@ -39,8 +46,6 @@ function checkEmpty(content: object, res: any): boolean {
   return false;
 }
 
-const cachedProfData: { [key: string]: ProfessorPage | null } = {};
-
 /* eslint-enable @typescript-eslint/naming-convention */
 app.post('/professor', async (req, res) => {
   // API returns single professor data or null if doesn't exist
@@ -56,28 +61,40 @@ app.post('/professor', async (req, res) => {
       .send({ err: 'name of professor needs to be specified' });
   }
 
-  const name: string = req.body.name;
-  let data: ProfessorPage | null;
+  const name: string = req.body.name.toLowerCase();
+  let data: ProfessorPage | null = null;
 
   // RMP name provided
-  if (!(name.toLowerCase() in cachedProfData)) {
-    const result = await checkProfName(name); // row data of mysql, will return the name if exists
-    if (result.length > 0) {
-      cachedProfData[name.toLowerCase()] = await getProfessorByName(name); // maps data for every new professor
-      console.log('NEW PROFESSOR ADDED, ', name);
+  try {
+    // Check if prof data already exists
+    const result = await profSearch(name);
+    if (!result || Object.keys(result).length === 0) {
+      /* No data found in db based on 'name' */
+      // Check if prof name actually exists in cpp
+      if ((await checkProfName(name)).length > 0) {
+        await addProf(name);
+        data = await profSearch(name); // re-query data after adding info
+      } else {
+        return res.status(400).send('professor not found in mapping');
+      }
+    } else if (await checkExpiredProfData(name)) {
+      /* Data exists, but it's 3mo+ old */
+      const newData = await getProfessorByName(name);
+      await updateProf({
+        profName: name,
+        avgDifficulty: newData?.avgDifficulty ?? -1,
+        avgRating: newData?.avgRating ?? -1,
+        numRatings: newData?.numRatings ?? -1,
+        wouldTakeAgainPercent: newData?.wouldTakeAgainPercent ?? -1,
+      });
+      data = await profSearch(name); // re-query data after updating info
     } else {
-      return res.status(400).send('professor not found in mapping');
+      /* Data exists and is younger than 3mo */
+      data = result;
     }
+  } catch (err) {
+    console.error(err);
   }
-
-  // eslint-disable-next-line prefer-const
-  data = cachedProfData[name.toLowerCase()];
-
-  if (!data) {
-    res.status(400).send('name of professor not in RMP');
-    return;
-  }
-
   res.send(data);
 });
 
