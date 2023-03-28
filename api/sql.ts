@@ -223,6 +223,16 @@ async function checkProfDatabaseExist(): Promise<boolean> {
   return resultAmount > 0;
 }
 
+/**
+ * Gets all professor names in `professorDB` in alphabetical order.
+ * @returns {Promise<object[]>} Array of JSON values.
+ */
+async function getProfNames(): Promise<object[]> {
+  return await execute(
+    'SELECT `broncoDirectName` FROM `professorDB` ORDER BY `broncoDirectName` ASC'
+  );
+}
+
 /* --- MySQL FUNCTIONS --- */
 
 // checks if there is an active SQL connection
@@ -328,6 +338,8 @@ export async function initializeMySQL(): Promise<void> {
   }
 
   console.log('MySQL server successfully started!');
+
+  console.log(await getProfNames());
 
   // const sampleProf: Professor = {
   //   profName: 'Poppy Gloria',
