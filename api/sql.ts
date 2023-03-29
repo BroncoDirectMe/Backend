@@ -339,8 +339,6 @@ export async function initializeMySQL(): Promise<void> {
 
   console.log('MySQL server successfully started!');
 
-  console.log(await getProfNames());
-
   // const sampleProf: Professor = {
   //   profName: 'Poppy Gloria',
   //   firstName: 'Poppy',
