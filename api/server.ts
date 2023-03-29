@@ -9,6 +9,7 @@ import {
   profSearch,
   checkExpiredProfData,
   checkProfName,
+  getProfNames,
   initializeMySQL,
   checkSQLConnection,
 } from './sql';
@@ -96,6 +97,17 @@ app.post('/professor', async (req, res) => {
     console.error(err);
   }
   res.send(data);
+});
+
+// returns all rmp registered professor names
+app.get('/professor/names', async (req, res) => {
+  try {
+    const data = await getProfNames();
+    res.send(data);
+  } catch (err) {
+    console.error(err);
+    res.status(400).send(err);
+  }
 });
 
 app.post('/search', async (req, res) => {

@@ -227,7 +227,7 @@ async function checkProfDatabaseExist(): Promise<boolean> {
  * Gets all professor names in `professorDB` in alphabetical order.
  * @returns {Promise<object[]>} Array of JSON values.
  */
-async function getProfNames(): Promise<object[]> {
+export async function getProfNames(): Promise<object[]> {
   return await execute(
     'SELECT `broncoDirectName` FROM `professorDB` ORDER BY `broncoDirectName` ASC'
   );
