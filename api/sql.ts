@@ -223,6 +223,16 @@ async function checkProfDatabaseExist(): Promise<boolean> {
   return resultAmount > 0;
 }
 
+/**
+ * Gets all professor names in `professorDB` in alphabetical order.
+ * @returns {Promise<object[]>} Array of JSON values.
+ */
+export async function getProfNames(): Promise<object[]> {
+  return await execute(
+    'SELECT `broncoDirectName` FROM `professorDB` ORDER BY `broncoDirectName` ASC'
+  );
+}
+
 /* --- MySQL FUNCTIONS --- */
 
 // checks if there is an active SQL connection
