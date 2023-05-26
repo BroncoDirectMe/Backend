@@ -2,7 +2,7 @@
   "env": {
     "es2021": true
   },
-  "extends": ["standard-with-typescript", "prettier"],
+  "extends": ["standard-with-typescript", "prettier", "plugin:jsdoc/recommended-typescript"],
   "overrides": [],
   "parserOptions": {
     "ecmaVersion": "latest",
