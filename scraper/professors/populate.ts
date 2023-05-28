@@ -1,7 +1,5 @@
 export async function readFile(): Promise<string[]> {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
   const readline = require('readline');
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
   const fs = require('fs');
   const nameArray = [];
   const readStream = fs.createReadStream('./scraper/professors/professors.txt');
@@ -25,7 +23,6 @@ export async function readFile(): Promise<string[]> {
         !titles.includes(a) && a.length > 1 && !a.match(specialChars)
     );
 
-    // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
     nameArray.push(name[1] + ' ' + name[0]);
   }
   console.log(nameArray);

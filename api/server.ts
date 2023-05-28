@@ -39,6 +39,12 @@ const checkConnection = async (
 
 app.use(checkConnection);
 
+/**
+ * Checks if the request body is empty. If it is, sends a 400 error response.
+ * @param content Request body object
+ * @param res Response object to send error response
+ * @returns Boolean indicating if the request body is empty
+ */
 function checkEmpty(content: object, res: any): boolean {
   if (Object.keys(content).length === 0) {
     res.status(400).send({ err: 'empty json not accepted' });
