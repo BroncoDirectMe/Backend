@@ -6,9 +6,10 @@ import 'dotenv/config';
 let connection: any;
 
 /**
- * Internal use function to execute a single SQL command as prepared statements with error catching.
- * @param {string} SQLCommand Single quotation marks for one-line commands. Template string for multi-line commands.
- * @param {string[]} [placeholder] Optional parameter used for SQL commands that require function parameters.
+ * Internal use function to execute a single SQL command as prepared statements with error catching
+ * @param cmd Single quotation marks for one-line commands. Template string for multi-line commands
+ * @param placeholder Optional parameter used for SQL commands that require function parameters
+ * @returns Promise containing SQL query result
  */
 async function execute(cmd: string, placeholder?: string[]): Promise<any> {
   const data = await new Promise((resolve) =>
@@ -31,8 +32,8 @@ async function execute(cmd: string, placeholder?: string[]): Promise<any> {
 /* --- rateMyProfessorDB FUNCTIONS --- */
 
 /**
- * Adds a new professor entry into `rateMyProfessorDB` using a professor's full name.
- * @param {Professor} newProfessor See professor interface (/api/Professor.d.ts).
+ * Adds a new professor entry into `rateMyProfessorDB` using a professor's full name
+ * @param broncoDirectName Professor's BroncoDirect name
  */
 export async function addProf(broncoDirectName: string): Promise<void> {
   try {
@@ -151,9 +152,8 @@ export async function updateProf({
 /**
  * Checks if a professor's data in the db is more than 3 months old.
  * Current expiration date is 3 months, or 7884000 seconds.
- *
- * @param {string}  broncoDirectName BroncoDirect name.
- * @return {Promise<boolean>} True if prof data is 3mo+ old, false otherwise.
+ * @param broncoDirectName BroncoDirect name.
+ * @returns {Promise<boolean>} True if prof data is 3mo+ old, false otherwise.
  */
 export async function checkExpiredProfData(
   broncoDirectName: string
@@ -169,7 +169,7 @@ export async function checkExpiredProfData(
 /**
  * Finds a professor in the SQL Database given their BroncoDirect name.
  * @param {string}  broncoDirectName BroncoDirect name.
- * @return {Promise<Professor>} JSON of professor data.
+ * @returns {Promise<Professor>} JSON of professor data.
  * Value can be extracted by awaiting function call within an async function.
  */
 export async function profSearch(broncoDirectName: string): Promise<Professor> {
@@ -189,7 +189,8 @@ export async function profSearch(broncoDirectName: string): Promise<Professor> {
 
 /**
  * Adds a professor to the professorDB table in SQL database.
- * @param {string} broncoDirectName name to be added.
+ * @param bdFirst BroncoDirect Professor's first name
+ * @param bdLast BroncoDirect Professor's last name
  */
 export function addProfName(bdFirst: string, bdLast: string): void {
   const fullName = bdFirst + ' ' + bdLast;
@@ -200,8 +201,8 @@ export function addProfName(bdFirst: string, bdLast: string): void {
 
 /**
  * Checks if a professor's name exists in the `professorDB` database (meaning they are a valid professor).
- * @param {string} broncoDirectName name to be checked.
- * @return {Promise<object[]>} Array of JSON values.
+ * @param broncoDirectName name to be checked.
+ * @returns SQL Query result based on BroncoDirect name.
  */
 export async function checkProfName(
   broncoDirectName: string
@@ -215,7 +216,7 @@ export async function checkProfName(
 
 /**
  * Checks if `professorDB` already has prof names in it.
- * @return {Promise<boolean>} True if db has data in it, false otherwise.
+ * @returns Boolean indicating whether database has data in it
  */
 async function checkProfDatabaseExist(): Promise<boolean> {
   const result = await execute(`SELECT COUNT(*) FROM professorDB`);
@@ -225,7 +226,7 @@ async function checkProfDatabaseExist(): Promise<boolean> {
 
 /**
  * Gets all professor names in `professorDB` in alphabetical order.
- * @returns {Promise<object[]>} Array of JSON values.
+ * @returns SQL Query result based on professor names.
  */
 export async function getProfNames(): Promise<object[]> {
   return await execute(
@@ -235,7 +236,10 @@ export async function getProfNames(): Promise<object[]> {
 
 /* --- MySQL FUNCTIONS --- */
 
-// checks if there is an active SQL connection
+/**
+ * Checks for active SQL connection
+ * @returns Boolean indicating whether connection is active
+ */
 export async function checkSQLConnection(): Promise<boolean> {
   // makes sure connection has a ping command
   if (!connection?.ping) {
