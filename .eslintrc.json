@@ -2,7 +2,11 @@
   "env": {
     "es2021": true
   },
-  "extends": ["standard-with-typescript", "prettier"],
+  "extends": [
+    "standard-with-typescript",
+    "prettier",
+    "plugin:jsdoc/recommended-typescript-error"
+  ],
   "overrides": [],
   "parserOptions": {
     "ecmaVersion": "latest",
@@ -10,6 +14,7 @@
     "project": ["tsconfig.json"]
   },
   "rules": {
+    "jsdoc/no-types": 0,
     "@typescript-eslint/strict-boolean-expressions": 0,
     "@typescript-eslint/naming-convention": [
       "warn",
@@ -24,6 +29,14 @@
       {
         "selector": "typeLike",
         "format": ["PascalCase"]
+      }
+    ],
+    "@typescript-eslint/no-misused-promises": [
+      "error",
+      {
+        "checksVoidReturn": {
+          "arguments": false
+        }
       }
     ]
   }
