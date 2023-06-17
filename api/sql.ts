@@ -314,7 +314,18 @@ export async function initializeMySQL(): Promise<void> {
       legacyId int
     )
   `);
-
+  void execute(`
+    CREATE TABLE IF NOT EXISTS Curriculum (
+      id int NOT NULL PRIMARY KEY AUTO_INCREMENT,
+      department varchar(255),
+      courseName varchar(255),
+      courseNumber varchar(255),
+      courseDescription varchar(255),
+      preReqs varchar(255),
+      courseCategory varchar(255),
+      acceptanceCriteria varchar(255)
+    )
+  `);
   void execute(`CREATE TABLE IF NOT EXISTS professorDB (
     profID int NOT NULL PRIMARY KEY AUTO_INCREMENT,
     broncoDirectName varchar(255)
