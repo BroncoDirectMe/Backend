@@ -1,3 +1,4 @@
+import { validateEmail } from './validation';
 import { getProfessorSearch } from './../scraper/scraper';
 import cors from 'cors';
 import express, { Request, Response, NextFunction } from 'express';
