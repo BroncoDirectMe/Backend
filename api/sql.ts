@@ -354,8 +354,6 @@ export async function initializeMySQL(): Promise<void> {
 
   console.log('MySQL server successfully started!');
 
-<<<<<<< HEAD
-=======
   void execute(`CREATE TABLE IF NOT EXISTS professorDB (
     profID int NOT NULL PRIMARY KEY AUTO_INCREMENT,
     broncoDirectName varchar(255)
@@ -384,7 +382,6 @@ export async function initializeMySQL(): Promise<void> {
 
   console.log('MySQL server successfully started!');
 
->>>>>>> dev
   // const sampleProf: Professor = {
   //   profName: 'Poppy Gloria',
   //   firstName: 'Poppy',
