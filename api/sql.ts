@@ -314,6 +314,45 @@ export async function initializeMySQL(): Promise<void> {
       legacyId int
     )
   `);
+  void execute(`
+    CREATE TABLE IF NOT EXISTS Curriculum (
+      id int NOT NULL PRIMARY KEY AUTO_INCREMENT,
+      department varchar(255),
+      courseName varchar(255),
+      courseNumber varchar(255),
+      courseDescription varchar(255),
+      preReqs varchar(255),
+      courseCategory varchar(255),
+      acceptanceCriteria varchar(255)
+    )
+  `);
+  void execute(`CREATE TABLE IF NOT EXISTS professorDB (
+    profID int NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    broncoDirectName varchar(255)
+  )`);
+  void execute(`CREATE TABLE IF NOT EXISTS votesDB (
+    id int NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    userID int,
+    voteType boolean
+  )`);
+  void execute(`
+  CREATE TABLE IF NOT EXISTS usersDB (
+    userID int NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    userEmail varchar(255)
+  )`);
+
+  // If professorDB is empty, call graphQL `getAllProfessor` function to get array of all rmp professors (cpp)
+  // Professors not currently in RMP may not be included in this scraping
+  if (!(await checkProfDatabaseExist())) {
+    await getAllProfessor().then((result) =>
+      result.forEach((val, index) => {
+        addProfName(val.firstName, val.lastName);
+        console.log(`Added ${val.firstName + ' ' + val.lastName} - `, index);
+      })
+    );
+  }
+
+  console.log('MySQL server successfully started!');
 
   void execute(`CREATE TABLE IF NOT EXISTS professorDB (
     profID int NOT NULL PRIMARY KEY AUTO_INCREMENT,
