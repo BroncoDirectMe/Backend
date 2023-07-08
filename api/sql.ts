@@ -234,6 +234,152 @@ export async function getProfNames(): Promise<object[]> {
   );
 }
 
+/* --- Curriculum FUNCTIONS --- */
+
+/**
+ * Adds a new course to the 'Curriculum' table with all the necessary course details as parameters.
+ * @param department The department of the course
+ * @param courseName The name of the course
+ * @param courseNumber The number of the course
+ * @param courseDescription The description of the course
+ * @param preReqs The prerequisites of the course
+ * @param courseCategory The category of the course
+ * @param acceptanceCriteria The acceptance criteria of the course
+ */
+export async function createCourse(
+  department: string,
+  courseName: string,
+  courseNumber: string,
+  courseDescription: string,
+  preReqs: string,
+  courseCategory: string,
+  acceptanceCriteria: string
+): Promise<void> {
+  try {
+    // Check if course already exists in the database
+    const result = await getCourse(courseNumber);
+    if (!result || Object.keys(result).length === 0) {
+      await execute(
+        `INSERT INTO Curriculum (
+          department, 
+          courseName, 
+          courseNumber, 
+          courseDescription, 
+          preReqs, 
+          courseCategory, 
+          acceptanceCriteria
+        ) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [
+          department,
+          courseName,
+          courseNumber,
+          courseDescription,
+          preReqs,
+          courseCategory,
+          acceptanceCriteria,
+        ]
+      );
+      console.log(
+        `[SUCCESS] Course ${courseNumber} - ${courseName} has been added to the Curriculum.`
+      );
+    } else {
+      console.error(`Course ${courseNumber} - ${courseName} already exists in the Curriculum.`);
+    }
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+interface CurriculumCourse {
+  id: string;
+  department: string;
+  courseName: string;
+  courseNumber: string;
+  courseDescription: string;
+  preReqs: string;
+  courseCategory: string;
+  acceptanceCriteria: string;
+}
+
+
+/**
+ * Updates an existing course by taking in the id of the target course, along with any course details that you intend to modify the target with.
+ * @param courseId The id of the target course
+ * @param updatedCourse An object containing the course details to be updated
+ */
+export async function updateCourse(courseId: string, updatedCourse: Partial<CurriculumCourse>): Promise<void> {
+  try {
+    const result = await getCourseById(courseId);
+    if (result && Object.keys(result).length > 0) {
+      const mergedCourse = { ...result, ...updatedCourse };
+      await execute(
+        `UPDATE Curriculum SET
+          department = ?,
+          courseName = ?,
+          courseNumber = ?,
+          courseDescription = ?,
+          preReqs = ?,
+          courseCategory = ?,
+          acceptanceCriteria = ?
+          WHERE id = ?`,
+        [
+          mergedCourse.department,
+          mergedCourse.courseName,
+          mergedCourse.courseNumber,
+          mergedCourse.courseDescription,
+          mergedCourse.preReqs,
+          mergedCourse.courseCategory,
+          mergedCourse.acceptanceCriteria,
+          courseId,
+        ]
+      );
+      console.log(`[SUCCESS] Course ${courseId} has been updated.`);
+    } else {
+      console.error(`Course ${courseId} not found in the Curriculum.`);
+    }
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+/**
+ * Removes an existing course by taking in the id of the target course, and handles errors for invalid inputs.
+ * @param courseId The id of the target course to be deleted
+ */
+export async function deleteCourse(courseId: string): Promise<void> {
+  try {
+    const result = await getCourseById(courseId);
+    if (result && Object.keys(result).length > 0) {
+      await execute(`DELETE FROM Curriculum WHERE id = ?`, [courseId]);
+      console.log(`[SUCCESS] Course ${courseId} has been deleted from the Curriculum.`);
+    } else {
+      console.error(`Course ${courseId} not found in the Curriculum.`);
+    }
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+/**
+ * Retrieves information for a specific course based on the course number.
+ * @param courseNumber The course number of the target course
+ * @returns A Promise that resolves to the course information
+ */
+export async function getCourse(courseNumber: string): Promise<CurriculumCourse> {
+  const [result] = await execute(`SELECT * FROM Curriculum WHERE courseNumber = ?`, [courseNumber]);
+  return result;
+}
+
+/**
+ * Retrieves information for a specific course based on the course id.
+ * @param courseId The id of the target course
+ * @returns A Promise that resolves to the course information
+ */
+export async function getCourseById(courseId: string): Promise<CurriculumCourse> {
+  const [result] = await execute(`SELECT * FROM Curriculum WHERE id = ?`, [courseId]);
+  return result;
+}
+
 /* --- MySQL FUNCTIONS --- */
 
 /**
