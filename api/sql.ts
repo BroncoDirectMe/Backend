@@ -261,12 +261,12 @@ export async function createCourse(
     if (!result || Object.keys(result).length === 0) {
       await execute(
         `INSERT INTO Curriculum (
-          department,
-          courseName,
-          courseNumber,
-          courseDescription,
-          preReqs,
-          courseCategory,
+          department, 
+          courseName, 
+          courseNumber, 
+          courseDescription, 
+          preReqs, 
+          courseCategory, 
           acceptanceCriteria
         ) VALUES (?, ?, ?, ?, ?, ?, ?)`,
         [
@@ -283,13 +283,15 @@ export async function createCourse(
         `[SUCCESS] Course ${courseNumber} - ${courseName} has been added to the Curriculum.`
       );
     } else {
-      console.error(`Course ${courseNumber} - ${courseName} already exists in the Curriculum.`);
+      console.error(
+        `Course ${courseNumber} - ${courseName} already exists in the Curriculum.`
+      );
     }
   } catch (err) {
     console.error(err);
   }
 }
-
+('');
 interface CurriculumCourse {
   id: string;
   department: string;
@@ -353,7 +355,9 @@ export async function deleteCourse(courseId: string): Promise<void> {
     const result = await getCourseById(courseId);
     if (result && Object.keys(result).length > 0) {
       await execute(`DELETE FROM Curriculum WHERE id = ?`, [courseId]);
-      console.log(`[SUCCESS] Course ${courseId} has been deleted from the Curriculum.`);
+      console.log(
+        `[SUCCESS] Course ${courseId} has been deleted from the Curriculum.`
+      );
     } else {
       console.error(`Course ${courseId} not found in the Curriculum.`);
     }
@@ -367,8 +371,13 @@ export async function deleteCourse(courseId: string): Promise<void> {
  * @param courseNumber The course number of the target course
  * @returns A Promise that resolves to the course information
  */
-export async function getCourse(courseNumber: string): Promise<CurriculumCourse> {
-  const [result] = await execute(`SELECT * FROM Curriculum WHERE courseNumber = ?`, [courseNumber]);
+export async function getCourse(
+  courseNumber: string
+): Promise<CurriculumCourse> {
+  const [result] = await execute(
+    `SELECT * FROM Curriculum WHERE courseNumber = ?`,
+    [courseNumber]
+  );
   return result;
 }
 
@@ -377,8 +386,12 @@ export async function getCourse(courseNumber: string): Promise<CurriculumCourse>
  * @param courseId The id of the target course
  * @returns A Promise that resolves to the course information
  */
-export async function getCourseById(courseId: string): Promise<CurriculumCourse> {
-  const [result] = await execute(`SELECT * FROM Curriculum WHERE id = ?`, [courseId]);
+export async function getCourseById(
+  courseId: string
+): Promise<CurriculumCourse> {
+  const [result] = await execute(`SELECT * FROM Curriculum WHERE id = ?`, [
+    courseId,
+  ]);
   return result;
 }
 
