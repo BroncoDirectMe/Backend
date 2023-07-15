@@ -261,12 +261,12 @@ export async function createCourse(
     if (!result || Object.keys(result).length === 0) {
       await execute(
         `INSERT INTO Curriculum (
-          department, 
-          courseName, 
-          courseNumber, 
-          courseDescription, 
-          preReqs, 
-          courseCategory, 
+          department,
+          courseName,
+          courseNumber,
+          courseDescription,
+          preReqs,
+          courseCategory,
           acceptanceCriteria
         ) VALUES (?, ?, ?, ?, ?, ?, ?)`,
         [
@@ -301,13 +301,15 @@ interface CurriculumCourse {
   acceptanceCriteria: string;
 }
 
-
 /**
  * Updates an existing course by taking in the id of the target course, along with any course details that you intend to modify the target with.
  * @param courseId The id of the target course
  * @param updatedCourse An object containing the course details to be updated
  */
-export async function updateCourse(courseId: string, updatedCourse: Partial<CurriculumCourse>): Promise<void> {
+export async function updateCourse(
+  courseId: string,
+  updatedCourse: Partial<CurriculumCourse>
+): Promise<void> {
   try {
     const result = await getCourseById(courseId);
     if (result && Object.keys(result).length > 0) {
