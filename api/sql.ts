@@ -291,7 +291,7 @@ export async function createCourse(
     console.error(err);
   }
 }
-('');
+
 interface CurriculumCourse {
   id: string;
   department: string;
