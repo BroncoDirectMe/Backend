@@ -184,6 +184,10 @@ app.get('/vote', (req, res) => {
   return res.status(400).send(result);
 });
 
+app.get('/checkAuthentication', validateEmail, (req, res) => {
+  res.status(200).send(res.locals.user);
+});
+
 app.get('/login', async (req, res) => {
   const saltRounds = 10;
   const myPlaintextPassword = 's0//P4$$w0rD';
@@ -198,15 +202,11 @@ app.get('/login', async (req, res) => {
     storeHash = hash;
 
     // Load hash from your password DB.
-    bcrypt.compare(
-      myPlaintextPassword,
-      storeHash,
-      function (err, result) {
-        if (err) return console.log(err);
-        console.log(`good result: ${result}`);
-        // result == true
-      }
-    );
+    bcrypt.compare(myPlaintextPassword, storeHash, function (err, result) {
+      if (err) return console.log(err);
+      console.log(`good result: ${result}`);
+      // result == true
+    });
 
     bcrypt.compare(
       someOtherPlaintextPassword,
