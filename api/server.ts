@@ -14,7 +14,6 @@ import {
   initializeMySQL,
   checkSQLConnection,
 } from './sql';
-import bcrypt from 'bcrypt';
 
 const app = express();
 app.use(express.json());
@@ -184,43 +183,10 @@ app.get('/vote', (req, res) => {
   return res.status(400).send(result);
 });
 
-app.get('/checkAuthentication', validateEmail, (req, res) => {
-  res.status(200).send(res.locals.user);
-});
+app.post('/login', validateEmail, async (req, res) => {
+  console.log(res.locals.user);
 
-app.get('/login', async (req, res) => {
-  const saltRounds = 10;
-  const myPlaintextPassword = 's0//P4$$w0rD';
-  const someOtherPlaintextPassword = 'not_bacon';
-
-  let storeHash = '';
-
-  await bcrypt.hash(myPlaintextPassword, saltRounds, function (err, hash) {
-    if (err) return console.log(err);
-
-    // Store hash in your password DB.
-    storeHash = hash;
-
-    // Load hash from your password DB.
-    bcrypt.compare(myPlaintextPassword, storeHash, function (err, result) {
-      if (err) return console.log(err);
-      console.log(`good result: ${result}`);
-      // result == true
-    });
-
-    bcrypt.compare(
-      someOtherPlaintextPassword,
-      storeHash,
-      function (err, result) {
-        if (err) return console.log(err);
-        console.log(`bad result: ${result}`);
-
-        // result == false
-      }
-    );
-  });
-
-  return res.send('login poggers');
+  return res.status(200).send('login poggers');
 });
 
 app.listen(process.env.PORT ?? 3000);

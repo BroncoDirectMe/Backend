@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import axios from 'axios';
 
 export interface UserData {
   displayName: string;
@@ -8,41 +9,40 @@ export interface UserData {
   userPrincipalName: string;
 }
 
-export interface UserValidatedResponse extends Response {
-  locals: {
-    user: UserData;
-  };
-}
-
 interface MSALError {
   error: { code: string };
 }
 
 export const validateEmail = (
   req: Request,
-  res: UserValidatedResponse,
+  res: Response,
   next: NextFunction
 ): void => {
-  if (!req?.headers.authorization) {
+  if (!req.body?.accessToken) {
     res.status(401).send('User unauthorized');
     return;
   }
-  fetch('https://graph.microsoft.com/v1.0/me', {
+
+  axios('https://graph.microsoft.com/v1.0/me', {
+    method: 'get',
     headers: {
-      authorization: req.headers.authorization,
+      authorization: 'Bearer ' + (req.body.accessToken as string),
     },
   })
-    .then(async (data) => {
-      const val = (await data.json()) as UserData | MSALError;
-      if ((val as MSALError).error?.code === 'InvalidAuthenticationToken') {
-        res.status(401).send('Invalid Authentication Token');
-        return;
-      }
+  .then(async (data) => {
+    const userInfo: UserData = data.data;  
 
-      res.locals.user = val as UserData;
-      next();
-    })
-    .catch((e) => {
+    console.log(userInfo);
+    // const val = (await data.json()) as UserData | MSALError;
+    // if ((val as MSALError).error?.code === 'InvalidAuthenticationToken') {
+    //   res.status(401).send('Invalid Authentication Token');
+    //   return;
+    // }
+
+    // res.locals.user = val as UserData;
+    next();
+  })
+    .catch(() => {
       res.status(500).send('Error contacting Microsoft');
     });
 };
