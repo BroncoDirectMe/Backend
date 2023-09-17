@@ -1,12 +1,24 @@
 # Ignore the bad variable names, just focus on what the comments explain about the scraper
 
+# How to use
+"""
+Make sure you have scrapy installed
+1. Change start url to the Index of Academic Programs page of the year you want and save the file. the one included is for the 2023-2024 year
+2. Open a terminal in the folder where curriculum.py is in
+3. In the terminal put scrapy crawl curriculum -O "put file name here".csv
+4. Let it run till it finishes, there should be a csv file in the same folder.
+Now repeat that for the other 4 years, should just be as easy as replacing the starting url. 
+"""
+
+# Comments here are for myself and others to understand what's going on here.
+
 import scrapy
 from scrapy.spiders import CrawlSpider, Rule
 from scrapy.linkextractors import LinkExtractor
 import re
 class CurriculumScraper(CrawlSpider):
     name = "curriculum"
-    start_urls = ["https://catalog.cpp.edu/content.php?catoid=65&navoid=5519"] # This is the start url, change this manually to the index of Academic Programs of the year you are interested in scraping
+    start_urls = ["https://catalog.cpp.edu/content.php?catoid=65&navoid=5519"] # This is the start url, change this manually to the index of Academic Programs page of the year you are interested in scraping
 
     rules = [
         Rule( 
