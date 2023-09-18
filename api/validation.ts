@@ -9,10 +9,6 @@ export interface UserData {
   userPrincipalName: string;
 }
 
-interface MSALError {
-  error: { code: string };
-}
-
 export const validateEmail = (
   req: Request,
   res: Response,
@@ -29,19 +25,12 @@ export const validateEmail = (
       authorization: 'Bearer ' + (req.body.accessToken as string),
     },
   })
-  .then(async (data) => {
-    const userInfo: UserData = data.data;  
+    .then(async (data) => {
+      const userInfo: UserData = data.data;
 
-    console.log(userInfo);
-    // const val = (await data.json()) as UserData | MSALError;
-    // if ((val as MSALError).error?.code === 'InvalidAuthenticationToken') {
-    //   res.status(401).send('Invalid Authentication Token');
-    //   return;
-    // }
-
-    // res.locals.user = val as UserData;
-    next();
-  })
+      res.locals.user = userInfo;
+      next();
+    })
     .catch(() => {
       res.status(500).send('Error contacting Microsoft');
     });
