@@ -238,22 +238,16 @@ export async function getProfNames(): Promise<object[]> {
 
 /**
  * Adds a new course to the 'Curriculum' table with all the necessary course details as parameters.
- * @param department The department of the course
  * @param courseName The name of the course
  * @param courseNumber The number of the course
- * @param courseDescription The description of the course
  * @param preReqs The prerequisites of the course
- * @param courseCategory The category of the course
- * @param acceptanceCriteria The acceptance criteria of the course
+ * @param coReqs The corequeuistes of the course
  */
 export async function createCourse(
-  department: string,
   courseName: string,
   courseNumber: string,
-  courseDescription: string,
   preReqs: string,
-  courseCategory: string,
-  acceptanceCriteria: string
+  coReqs: string,
 ): Promise<void> {
   try {
     // Check if course already exists in the database
@@ -261,22 +255,16 @@ export async function createCourse(
     if (!result || Object.keys(result).length === 0) {
       await execute(
         `INSERT INTO Curriculum (
-          department, 
           courseName, 
           courseNumber, 
-          courseDescription, 
           preReqs, 
-          courseCategory, 
-          acceptanceCriteria
-        ) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+          coReqs
+        ) VALUES (?, ?, ?, ?)`,
         [
-          department,
           courseName,
           courseNumber,
-          courseDescription,
           preReqs,
-          courseCategory,
-          acceptanceCriteria,
+          coReqs,
         ]
       );
       console.log(
@@ -294,13 +282,10 @@ export async function createCourse(
 
 interface CurriculumCourse {
   id: string;
-  department: string;
   courseName: string;
   courseNumber: string;
-  courseDescription: string;
   preReqs: string;
-  courseCategory: string;
-  acceptanceCriteria: string;
+  coReqs: string;
 }
 
 /**
@@ -318,22 +303,16 @@ export async function updateCourse(
       const mergedCourse = { ...result, ...updatedCourse };
       await execute(
         `UPDATE Curriculum SET
-          department = ?,
           courseName = ?,
           courseNumber = ?,
-          courseDescription = ?,
           preReqs = ?,
-          courseCategory = ?,
-          acceptanceCriteria = ?
+          coReqs = ?,
           WHERE id = ?`,
         [
-          mergedCourse.department,
           mergedCourse.courseName,
           mergedCourse.courseNumber,
-          mergedCourse.courseDescription,
           mergedCourse.preReqs,
-          mergedCourse.courseCategory,
-          mergedCourse.acceptanceCriteria,
+          mergedCourse.coReqs,
           courseId,
         ]
       );
