@@ -294,7 +294,7 @@ interface CurriculumCourse {
  * @param updatedCourse An object containing the course details to be updated
  */
 export async function updateCourse(
-  courseId: string,
+  courseId: string, 
   updatedCourse: Partial<CurriculumCourse>
 ): Promise<void> {
   try {
