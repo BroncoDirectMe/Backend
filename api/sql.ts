@@ -247,7 +247,7 @@ export async function createCourse(
   courseName: string,
   courseNumber: string,
   preReqs: string,
-  coReqs: string,
+  coReqs: string
 ): Promise<void> {
   try {
     // Check if course already exists in the database
@@ -260,12 +260,7 @@ export async function createCourse(
           preReqs, 
           coReqs
         ) VALUES (?, ?, ?, ?)`,
-        [
-          courseName,
-          courseNumber,
-          preReqs,
-          coReqs,
-        ]
+        [courseName, courseNumber, preReqs, coReqs]
       );
       console.log(
         `[SUCCESS] Course ${courseNumber} - ${courseName} has been added to the Curriculum.`
@@ -294,7 +289,7 @@ interface CurriculumCourse {
  * @param updatedCourse An object containing the course details to be updated
  */
 export async function updateCourse(
-  courseId: string, 
+  courseId: string,
   updatedCourse: Partial<CurriculumCourse>
 ): Promise<void> {
   try {
