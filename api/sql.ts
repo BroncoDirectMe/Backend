@@ -234,6 +234,141 @@ export async function getProfNames(): Promise<object[]> {
   );
 }
 
+/* --- Curriculum FUNCTIONS --- */
+
+/**
+ * Adds a new course to the 'Curriculum' table with all the necessary course details as parameters.
+ * @param courseName The name of the course
+ * @param courseNumber The number of the course
+ * @param preReqs The prerequisites of the course
+ * @param coReqs The corequeuistes of the course
+ */
+export async function createCourse(
+  courseName: string,
+  courseNumber: string,
+  preReqs: string,
+  coReqs: string
+): Promise<void> {
+  try {
+    // Check if course already exists in the database
+    const result = await getCourse(courseNumber);
+    if (!result || Object.keys(result).length === 0) {
+      await execute(
+        `INSERT INTO Curriculum (
+          courseName, 
+          courseNumber, 
+          preReqs, 
+          coReqs
+        ) VALUES (?, ?, ?, ?)`,
+        [courseName, courseNumber, preReqs, coReqs]
+      );
+      console.log(
+        `[SUCCESS] Course ${courseNumber} - ${courseName} has been added to the Curriculum.`
+      );
+    } else {
+      console.error(
+        `Course ${courseNumber} - ${courseName} already exists in the Curriculum.`
+      );
+    }
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+interface CurriculumCourse {
+  id: string;
+  courseName: string;
+  courseNumber: string;
+  preReqs: string;
+  coReqs: string;
+}
+
+/**
+ * Updates an existing course by taking in the id of the target course, along with any course details that you intend to modify the target with.
+ * @param courseId The id of the target course
+ * @param updatedCourse An object containing the course details to be updated
+ */
+export async function updateCourse(
+  courseId: string,
+  updatedCourse: Partial<CurriculumCourse>
+): Promise<void> {
+  try {
+    const result = await getCourseById(courseId);
+    if (result && Object.keys(result).length > 0) {
+      const mergedCourse = { ...result, ...updatedCourse };
+      await execute(
+        `UPDATE Curriculum SET
+          courseName = ?,
+          courseNumber = ?,
+          preReqs = ?,
+          coReqs = ?,
+          WHERE id = ?`,
+        [
+          mergedCourse.courseName,
+          mergedCourse.courseNumber,
+          mergedCourse.preReqs,
+          mergedCourse.coReqs,
+          courseId,
+        ]
+      );
+      console.log(`[SUCCESS] Course ${courseId} has been updated.`);
+    } else {
+      console.error(`Course ${courseId} not found in the Curriculum.`);
+    }
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+/**
+ * Removes an existing course by taking in the id of the target course, and handles errors for invalid inputs.
+ * @param courseId The id of the target course to be deleted
+ */
+export async function deleteCourse(courseId: string): Promise<void> {
+  try {
+    const result = await getCourseById(courseId);
+    if (result && Object.keys(result).length > 0) {
+      await execute(`DELETE FROM Curriculum WHERE id = ?`, [courseId]);
+      console.log(
+        `[SUCCESS] Course ${courseId} has been deleted from the Curriculum.`
+      );
+    } else {
+      console.error(`Course ${courseId} not found in the Curriculum.`);
+    }
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+/**
+ * Retrieves information for a specific course based on the course number.
+ * @param courseNumber The course number of the target course
+ * @returns A Promise that resolves to the course information
+ */
+export async function getCourse(
+  courseNumber: string
+): Promise<CurriculumCourse> {
+  const [result] = await execute(
+    `SELECT * FROM Curriculum WHERE courseNumber = ?`,
+    [courseNumber]
+  );
+  return result;
+}
+
+/**
+ * Retrieves information for a specific course based on the course id.
+ * @param courseId The id of the target course
+ * @returns A Promise that resolves to the course information
+ */
+export async function getCourseById(
+  courseId: string
+): Promise<CurriculumCourse> {
+  const [result] = await execute(`SELECT * FROM Curriculum WHERE id = ?`, [
+    courseId,
+  ]);
+  return result;
+}
+
 /* --- MySQL FUNCTIONS --- */
 
 /**
@@ -314,6 +449,42 @@ export async function initializeMySQL(): Promise<void> {
       legacyId int
     )
   `);
+  void execute(`
+    CREATE TABLE IF NOT EXISTS Curriculum (
+      id int NOT NULL PRIMARY KEY AUTO_INCREMENT,
+      courseName varchar(255),
+      courseNumber varchar(255),
+      preReqs varchar(255),
+      coReqs varchar(255)
+    )
+  `);
+  void execute(`CREATE TABLE IF NOT EXISTS professorDB (
+    profID int NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    broncoDirectName varchar(255)
+  )`);
+  void execute(`CREATE TABLE IF NOT EXISTS votesDB (
+    id int NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    userID int,
+    voteType boolean
+  )`);
+  void execute(`
+  CREATE TABLE IF NOT EXISTS usersDB (
+    userID int NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    userEmail varchar(255)
+  )`);
+
+  // If professorDB is empty, call graphQL `getAllProfessor` function to get array of all rmp professors (cpp)
+  // Professors not currently in RMP may not be included in this scraping
+  if (!(await checkProfDatabaseExist())) {
+    await getAllProfessor().then((result) =>
+      result.forEach((val, index) => {
+        addProfName(val.firstName, val.lastName);
+        console.log(`Added ${val.firstName + ' ' + val.lastName} - `, index);
+      })
+    );
+  }
+
+  console.log('MySQL server successfully started!');
 
   void execute(`CREATE TABLE IF NOT EXISTS professorDB (
     profID int NOT NULL PRIMARY KEY AUTO_INCREMENT,
