@@ -6,7 +6,7 @@ if ! docker ps -a --format '{{.Names}}' | grep -q bdm-db; then
 else
     echo "Removing Docker container"
     docker stop bdm-db > /dev/null
-    docker remove bdm-db > /dev/null
+    docker remove -v bdm-db > /dev/null
 fi
 
 echo "Starting new Docker container"
