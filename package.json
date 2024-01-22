@@ -5,9 +5,13 @@
   "main": "server.ts",
   "scripts": {
     "api": "nodemon api/server.ts",
-    "test": "npx ts-mocha -p ./tsconfig.json test/**/*.test.ts",
     "scrape": "nodemon scraper/scraper.ts",
-    "lint": "eslint --ext .js,.ts api/**/* & eslint --ext .js,.ts scraper/**/*"
+    "test": "npx ts-mocha -p ./tsconfig.json test/**/*.test.ts",
+    "lint": "eslint --ext .js,.ts api/**/* & eslint --ext .js,.ts scraper/**/*",
+    "setup": "./scripts/setup.sh",
+    "db-start": "./scripts/db-start.sh",
+    "db-stop": "./scripts/db-stop.sh",
+    "db-reset": "./scripts/db-reset.sh"
   },
   "repository": {
     "type": "git",
