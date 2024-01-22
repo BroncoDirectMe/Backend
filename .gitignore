@@ -51,3 +51,4 @@ jspm_packages/
 scraper/professors/professors.txt
 scraper/test.ts
 .vscode/
+pnpm-lock.yaml
