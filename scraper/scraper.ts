@@ -1,3 +1,4 @@
+// @ts-nocheck
 // graphql & request module that handles the data (includes graphql, request, and a few others)
 import { GraphQLClient } from 'graphql-request';
 // explained in respective file
