@@ -4,6 +4,7 @@
   "description": "",
   "main": "server.ts",
   "scripts": {
+    "prod": "ts-node api/server.ts",
     "api": "nodemon api/server.ts",
     "scrape": "nodemon scraper/scraper.ts",
     "test": "npx ts-mocha -p ./tsconfig.json test/**/*.test.ts",
