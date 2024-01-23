@@ -36,4 +36,4 @@ COPY . .
 EXPOSE 3000
 
 # Run the application.
-CMD npm run api
+CMD npm i && npm run api
