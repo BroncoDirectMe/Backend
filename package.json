@@ -10,9 +10,9 @@
     "test": "npx ts-mocha -p ./tsconfig.json test/**/*.test.ts",
     "lint": "eslint --ext .js,.ts api/**/* & eslint --ext .js,.ts scraper/**/*",
     "setup": "./scripts/setup.sh",
-    "db-start": "./scripts/db-start.sh",
-    "db-stop": "./scripts/db-stop.sh",
-    "db-reset": "./scripts/db-reset.sh"
+    "db-start": "./scripts/db-start.sh || sh ./scripts/db-start.sh || (cls & echo ERROR: Ensure that you're running this command in Git Bash!)",
+    "db-stop": "./scripts/db-stop.sh || sh ./scripts/db-stop.sh || (cls & echo ERROR: Ensure that you're running this command in Git Bash!)",
+    "db-reset": "./scripts/db-reset.sh || sh ./scripts/db-reset.sh || (cls & echo ERROR: Ensure that you're running this command in Git Bash!)"
   },
   "repository": {
     "type": "git",
