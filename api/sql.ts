@@ -1,9 +1,9 @@
-import { createConnection } from 'mysql2';
+import { Connection, createConnection } from 'mysql2';
 import { Professor, ProfessorUpdate } from './Professor';
 import { getProfessorByName, getAllProfessor } from '../scraper/scraper';
 import 'dotenv/config';
 
-let connection: any;
+let connection: Connection;
 
 /**
  * Internal use function to execute a single SQL command as prepared statements with error catching
@@ -415,13 +415,13 @@ export async function initializeMySQL(): Promise<void> {
   } = {
     host: process.env.HOST ?? 'localhost',
     port: process.env.SQL_PORT ? parseInt(process.env.SQL_PORT) : 3306,
-    user: process.env.DB_USER ?? 'user',
+    user: process.env.DB_USER ?? 'root',
     password: process.env.PASSWORD ?? 'password',
     database: 'broncoDirectMeDB',
   };
 
   connection = createConnection(mySQLConfig);
-  connection.connect((err: Error) => {
+  connection.connect((err: Error | null) => {
     if (err) {
       delete mySQLConfig.database;
       connection = createConnection(mySQLConfig);
