@@ -53,8 +53,8 @@ def parse_data(school_year: str):
                 "id": course["id"],
                 "name": course['name'],
                 "units": course["units"],
-                "prerequesites": prereq,
-                "corequesites": coreq
+                "prerequisites": prereq,
+                "corequisites": coreq
             }
             
     # Export dictionaries to JSON
