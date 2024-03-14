@@ -88,3 +88,96 @@ describe('[Search] 3 test cases', function () {
     });
   });
 });
+
+describe('[Majors] GET and POST test cases:', function () {
+  // Test for GET /majors/:schoolYear
+  it('GET valid school years', async function () {
+    const schoolYear = '2022-2023';
+    const res = await request(server).get(`/majors/${schoolYear}`);
+    expect(res).to.have.status(200);
+    expect(res.body).to.be.an('array');
+  });
+
+  it('GET invalid school year', async function () {
+    const schoolYear = '1999-2000';
+    const res = await request(server).get(`/majors/${schoolYear}`);
+    expect(res).to.have.status(404);
+    expect(res.text).to.equal('School year not found or data unavailable.');
+  });
+
+  // Test for POST /majors with optional school year
+  it('POST with specified school year and major name', async function () {
+    const payload = {
+      schoolYear: '2022-2023',
+      majorName: 'Computer Science, B.S.',
+    };
+    const res = await request(server).post('/majors').send(payload);
+    expect(res).to.have.status(200);
+    const keys = ['name', 'requirements', 'required', 'electives', 'units'];
+    expect(res.body).to.be.an('object').to.have.all.keys(keys);
+  });
+
+  it('POST without school year (uses most recent year)', async function () {
+    const payload = { majorName: 'Computer Science, B.S.' };
+    const res = await request(server).post('/majors').send(payload);
+    expect(res).to.have.status(200);
+    const keys = ['name', 'requirements', 'required', 'electives', 'units'];
+    expect(res.body).to.be.an('object').to.have.all.keys(keys);
+  });
+
+  it('POST with invalid school year', async function () {
+    const payload = {
+      schoolYear: '1999-2000',
+      majorName: 'Computer Science, B.S.',
+    };
+    const res = await request(server).post('/majors').send(payload);
+    expect(res).to.have.status(404);
+    expect(res.text).to.equal('Invalid school year.');
+  });
+});
+
+describe('[Courses] GET and POST test cases', function () {
+  // Test for GET /courses/:schoolYear
+  it('GET valid school year', async function () {
+    const schoolYear = '2022-2023';
+    const res = await request(server).get(`/courses/${schoolYear}`);
+    expect(res).to.have.status(200);
+    expect(res.body).to.be.an('array');
+  });
+
+  it('GET invalid school year', async function () {
+    const schoolYear = '1999-2000';
+    const res = await request(server).get(`/courses/${schoolYear}`);
+    expect(res).to.have.status(404);
+    expect(res.text).to.equal('Invalid school year.');
+  });
+
+  // Test for POST /courses with optional school year
+  it('POST with specified school year and course ID', async function () {
+    const payload = {
+      schoolYear: '2022-2023',
+      courseId: 'CS 1300',
+    };
+    const res = await request(server).post('/courses').send(payload);
+    expect(res).to.have.status(200);
+    const keys = ['id', 'name', 'units', 'prerequesites', 'corequesites'];
+    expect(res.body).to.be.an('object').to.have.all.keys(keys);
+  });
+
+  it('POST without school year (uses most recent year)', async function () {
+    const payload = { courseId: 'CS 1300' };
+    const res = await request(server).post('/courses').send(payload);
+    expect(res).to.have.status(200);
+    expect(res.body).to.be.an('object');
+  });
+
+  it('POST with invalid school year', async function () {
+    const payload = {
+      schoolYear: '1999-2000',
+      courseId: 'CS 1300',
+    };
+    const res = await request(server).post('/courses').send(payload);
+    expect(res).to.have.status(404);
+    expect(res.text).to.equal('Invalid school year.');
+  });
+});
