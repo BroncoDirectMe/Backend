@@ -13,6 +13,9 @@ import {
   initializeMySQL,
   checkSQLConnection,
 } from './sql';
+import * as fs from 'fs';
+import * as path from 'path';
+import { CourseInfo } from './Course';
 
 const app = express();
 app.use(express.json());
@@ -51,6 +54,15 @@ function checkEmpty(content: object, res: any): boolean {
     return true;
   }
   return false;
+}
+
+/**
+ * Returns an array of strings representing the available school years, sorted from the most recent to the oldest.
+ * This function is useful for determining the range of school years for which data is available.
+ * @returns {string[]} An array of school year strings in the format "YYYY-YYYY", representing the available school years.
+ */
+function availableSchoolYears(): string[] {
+  return ['2023-2024', '2022-2023', '2021-2022', '2020-2021', '2019-2020'];
 }
 
 /* eslint-enable @typescript-eslint/naming-convention */
@@ -180,6 +192,133 @@ app.get('/vote', (req, res) => {
     profName: 40,
   };
   return res.status(400).send(result);
+});
+
+app.get('/majors/:schoolYear', (req, res) => {
+  const schoolYear = req.params.schoolYear;
+  const filePath = path.join(
+    process.cwd(),
+    `/parser/parsed/majors_${schoolYear}.json`
+  );
+
+  fs.readFile(filePath, 'utf8', (err, data) => {
+    if (err) {
+      console.error(err);
+
+      return res.status(404).send('School year not found or data unavailable.');
+    }
+    const majors = JSON.parse(data);
+    res.json(Object.keys(majors));
+  });
+});
+
+app.post('/majors', (req, res) => {
+  if (checkEmpty(req.body, res)) {
+    return;
+  }
+  let { schoolYear, majorName } = req.body;
+
+  if (schoolYear && !availableSchoolYears().includes(schoolYear)) {
+    return res.status(404).send('Invalid school year.');
+  }
+
+  if (!schoolYear) {
+    schoolYear = availableSchoolYears()[0] ?? '2023-2024';
+  }
+
+  const filePath = path.join(
+    process.cwd(),
+    `/parser/parsed/majors_${String(schoolYear)}.json`
+  );
+
+  fs.readFile(filePath, 'utf8', (err, data) => {
+    if (err) {
+      console.error(err);
+      return res.status(404).send('Data not found.');
+    }
+    const majors = JSON.parse(data);
+    const majorDetails = majors[majorName];
+    if (majorDetails) {
+      res.json(majorDetails);
+    } else {
+      res.status(404).send('Major not found.');
+    }
+  });
+});
+
+app.get('/courses/:schoolYear', async (req, res) => {
+  const { schoolYear } = req.params;
+
+  if (
+    !schoolYear ||
+    (schoolYear && !availableSchoolYears().includes(schoolYear))
+  ) {
+    return res.status(404).send('Invalid school year.');
+  }
+
+  const filePath = path.join(
+    process.cwd(),
+    `/parser/parsed/courses_${schoolYear}.json`
+  );
+
+  try {
+    fs.readFile(filePath, 'utf8', (err, data) => {
+      if (err) {
+        console.error(err);
+        return res.status(404).send('Data not found.');
+      }
+      const courses = JSON.parse(data);
+      const courseList = Object.entries<CourseInfo>(courses).map(
+        ([id, course]) => ({ id, name: course.name })
+      );
+      return res.json(courseList);
+    });
+  } catch (err) {
+    console.error(err);
+    return res
+      .status(404)
+      .send('Courses data for the specified school year not found.');
+  }
+});
+
+app.post('/courses', async (req, res) => {
+  if (checkEmpty(req.body, res)) {
+    return;
+  }
+  let { schoolYear, courseId } = req.body;
+
+  if (schoolYear && !availableSchoolYears().includes(schoolYear)) {
+    return res.status(404).send('Invalid school year.');
+  }
+
+  if (!schoolYear) {
+    schoolYear = availableSchoolYears()[0] ?? '2023-2024';
+  }
+
+  const filePath = path.join(
+    process.cwd(),
+    `/parser/parsed/courses_${String(schoolYear)}.json`
+  );
+
+  try {
+    fs.readFile(filePath, 'utf8', (err, data) => {
+      if (err) {
+        console.error(err);
+        return res.status(404).send('Course not found.');
+      }
+      const courses = JSON.parse(data);
+      const course = courses[courseId];
+      if (!course) {
+        return res.status(404).send('Course not found.');
+      }
+      res.json(course);
+    });
+  } catch (err) {
+    console.error(err);
+    res
+      .status(404)
+      .send('Courses data for the specified school year not found.');
+  }
 });
 
 app.listen(process.env.PORT ?? 3000);
