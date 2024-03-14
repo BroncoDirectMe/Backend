@@ -39,7 +39,7 @@ def parse_data(school_year: str):
 
     # Export dictionaries to JSON
     with open(f'./parser/parsed/majors_{school_year}.json', 'w') as f:
-        json.dump(major_requirements, f, indent=4)
+        json.dump(major_requirements, f, indent=2)
 
     courses_info = {}
 
@@ -59,7 +59,7 @@ def parse_data(school_year: str):
             
     # Export dictionaries to JSON
     with open(f'./parser/parsed/courses_{school_year}.json', 'w') as f:
-        json.dump(courses_info, f, indent=4)
+        json.dump(courses_info, f, indent=2)
 
 
 available_years = ['2019-2020', '2020-2021', '2021-2022', '2022-2023', '2023-2024']
